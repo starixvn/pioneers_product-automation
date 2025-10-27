@@ -1,0 +1,1436 @@
+{
+  "name": "Game Bot - PO Integration",
+  "nodes": [
+    {
+      "parameters": {
+        "trigger": [
+          "message"
+        ],
+        "watchWorkspace": true,
+        "options": {}
+      },
+      "id": "1f23a5d1-d08d-43e8-837d-1ec6b3e77b9d",
+      "name": "Slack Trigger",
+      "type": "n8n-nodes-base.slackTrigger",
+      "typeVersion": 1,
+      "position": [
+        -48,
+        -112
+      ],
+      "webhookId": "608b270f-909c-4654-8b87-75b716ac7d7f",
+      "credentials": {
+        "slackApi": {
+          "id": "eW4xpXO0KmlzF5Jq",
+          "name": "Slack Bobby Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "//U08FSCMFUKG-Ethan,U08FZAE7CRL-Bobby,U08GRCSU325-Tacy\nconst allow_users = [\"U08FSCMFUKG\", \"U08FZAE7CRL\",\"U08GRCSU325\"];\nlet subtype = $json.subtype || 'NA';\nlet user_id = $json.user;\n// Check if exists\nconst exists = allow_users.includes(user_id);\n\nif ($json.bot_id || subtype === 'message_deleted' || subtype === 'message_changed' || !exists) {\n  // Message came from a bot (including this one) → stop workflow\n  return [];\n} else {\n  return [\n    { \n      json: { \n        channel: $json.channel, \n        user: user_id,\n        message_ts: $json.ts || 0,\n        text: $json.text \n      }\n    }\n  ];\n}"
+      },
+      "id": "4c788a5f-2e77-4555-9340-877b47d12d01",
+      "name": "Prepare Reply",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        176,
+        -112
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.text }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are the Game Bot, a smart AI assistant. You are here to gather the requirements for setting up the 3rd game integration and suport for product histtory as follows:\n1. Product History\n- Show product integration history\n2. Product Integration\n- ProductName: The name of the product (required)\n- SportName: The name associates with product (optional)\nYou must gather all required information before proceeding with the next step.\n- In case, the product or sport name are mentioned, please check the existence status. - If the product or sport name is existed, ask the user for the new one and futher details.\nAlways extract these parameters as below:\n- @channel: \"{{ $json.channel }}\"\n- @message_ts: \"{{ $json.message_ts }}\"\n- @ProductName: \"If NOT mentioned leave it is empty\"\n- @ProductPrefix: \"If NOT mentioned leave it is empty\"\n- @SportName: \"If NOT mentioned leave it as `ProductName`\"\n- @NewProductID: \"If NOT mentioned leave it is 0\"\n- @NewSportID: \"If NOT mentioned leave it is 0\"\n- @ProductExisted: \"If NOT mentioned leave it is false\"\n- @BettypeFrom: \"If NOT mentioned leave it is 0\"\n- @BettypeTo: \"If NOT mentioned leave it is 0\"\n- @IsHistory: \"If NOT mentioned leave it is false\"\n***Important:\n- You are working with Slack channel, PLEASE dont break rules the message formation.\n- Dont double quote any word in the output content.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        384,
+        -112
+      ],
+      "id": "1419fc47-20d3-40be-8969-ef573491c74f",
+      "name": "AI Agent",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        224,
+        96
+      ],
+      "id": "277c61d6-1999-4310-b000-b03759caa876",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "q6ciNNLKvDvCxSvV",
+          "name": "OpenAi account 27"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{$json.channel}}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        368,
+        96
+      ],
+      "id": "d22799e7-429e-47ec-a417-5525ea5c95e8",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "dfce5ab3-e9d2-4892-8880-ba74e75dc967",
+              "leftValue": "={{ $json.data.NewProductID }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            },
+            {
+              "id": "4d2cfb4b-c224-4a1c-8b33-72276d1f556b",
+              "leftValue": "={{ $json.data.NewSportID }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            },
+            {
+              "id": "ae06ce25-856b-45e4-8807-2eb8ec3a39a9",
+              "leftValue": "={{ $json.data.IsHistory }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        944,
+        -112
+      ],
+      "id": "33e03cfd-a35f-4230-a39f-1de5373bdb9b",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "571f1e0f-dcb7-4a6a-a7e3-2789022c1bad",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        704,
+        -544
+      ],
+      "id": "3dd4c91a-e3aa-4e0f-adba-48dba3da9146",
+      "name": "Webhook Confirm",
+      "webhookId": "571f1e0f-dcb7-4a6a-a7e3-2789022c1bad"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "D09JELLPLUQ",
+          "mode": "id"
+        },
+        "messageType": "block",
+        "blocksUi": "={\n  \"text\": \"Do you want to approve this request?\",\n  \"blocks\": [\n    {\n      \"type\": \"section\",\n      \"text\": { \"type\": \"mrkdwn\", \"text\": \"*RNG Casino - Confirmation*\" }\n    },\n    {\n      \"type\": \"actions\",\n      \"elements\": [\n        {\n          \"type\": \"button\",\n          \"text\": { \"type\": \"plain_text\", \"text\": \"✅ Approve\" },\n          \"style\": \"primary\",\n          \"value\": \"approve\"\n        },\n        {\n          \"type\": \"button\",\n          \"text\": { \"type\": \"plain_text\", \"text\": \"❌ Reject\" },\n          \"style\": \"danger\",\n          \"value\": \"reject\"\n        }\n      ]\n    }\n  ]\n}\n",
+        "text": "RNG Casino - Confirmation",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        2032,
+        80
+      ],
+      "id": "50048e00-b1af-4e6a-bce6-f425ca292518",
+      "name": "Slack Send Confirmation",
+      "webhookId": "69c34e94-fa9a-4bb5-81d4-c212e43360fb",
+      "credentials": {
+        "slackApi": {
+          "id": "eW4xpXO0KmlzF5Jq",
+          "name": "Slack Bobby Bot"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $json.channel }}",
+          "mode": "id"
+        },
+        "text": "={{ $json.message }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1296,
+        64
+      ],
+      "id": "2ab7ed5c-c98e-409c-85b8-4d414aaa05e7",
+      "name": "Gather Information",
+      "webhookId": "7abd109a-0d42-4c9a-ab73-d666fa0cdc22",
+      "credentials": {
+        "slackApi": {
+          "id": "eW4xpXO0KmlzF5Jq",
+          "name": "Slack Bobby Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "D09JELLPLUQ",
+          "mode": "id"
+        },
+        "messageType": "block",
+        "blocksUi": "={\n  \"trigger_id\": \"{{ $json.payload.trigger_id }}\",\n  \"view\": {\n    \"type\": \"modal\",\n    \"callback_id\": \"config_form\",\n    \"title\": { \"type\": \"plain_text\", \"text\": \"Game Setup\" },\n    \"submit\": { \"type\": \"plain_text\", \"text\": \"Submit\" },\n    \"close\": { \"type\": \"plain_text\", \"text\": \"Cancel\" },\n    \"blocks\": [\n      {\n        \"type\": \"input\",\n        \"block_id\": \"env_block\",\n        \"element\": {\n          \"type\": \"plain_text_input\",\n          \"action_id\": \"env_input\"\n        },\n        \"label\": { \"type\": \"plain_text\", \"text\": \"Environment\" }\n      },\n      {\n        \"type\": \"input\",\n        \"block_id\": \"product_block\",\n        \"element\": {\n          \"type\": \"plain_text_input\",\n          \"action_id\": \"product_input\"\n        },\n        \"label\": { \"type\": \"plain_text\", \"text\": \"Product Name\" }\n      }\n    ]\n  }\n}\n",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1824,
+        80
+      ],
+      "id": "c8ef8594-9e21-4e89-9f71-4b0937ac8c0c",
+      "name": "Send a popup modal",
+      "webhookId": "ada5b5ab-e91d-45b6-bf34-2c4ccc85ff6a",
+      "credentials": {
+        "slackApi": {
+          "id": "eW4xpXO0KmlzF5Jq",
+          "name": "Slack Bobby Bot"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $json.payload.container.channel_id }}",
+          "mode": "id"
+        },
+        "messageType": "block",
+        "blocksUi": "={\n\t\"type\": \"modal\",\n    \"trigger_id\": \"{{ $json.payload.trigger_id }}\",\n\t\"blocks\": [\n\t\t{\n\t\t\t\"type\": \"section\",\n\t\t\t\"text\": {\n\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\"text\": \"Hey {{$json.payload.user.name}}!\\n\\n*PO Agent - Configuration Details*\"\n\t\t\t}\n\t\t},\n        {\n\t\t\t\"type\": \"divider\"\n\t\t},\n        {\n\t\t\t\"type\": \"section\",\n            \"block_id\": \"model_block\",\n\t\t\t\"text\": {\n\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\"text\": \"Integration Model(*)\"\n\t\t\t},\n            \"accessory\": {\n                \"type\": \"static_select\",\n                \"action_id\": \"model_input\",\n\t\t\t\t\"placeholder\": {\n\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\"emoji\": true,\n\t\t\t\t\t\"text\": \"Select Model\"\n\t\t\t\t},\n                \"options\": [\n\t\t\t\t\t{\n\t\t\t\t\t\t\"text\": {\n\t\t\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\t\t\"emoji\": true,\n\t\t\t\t\t\t\t\"text\": \"Credit Only\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"value\": \"Credit\"\n\t\t\t\t\t},\n\t\t\t\t\t{\n\t\t\t\t\t\t\"text\": {\n\t\t\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\t\t\"emoji\": true,\n\t\t\t\t\t\t\t\"text\": \"Deposit Only\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"value\": \"Deposit\"\n\t\t\t\t\t},\n                    {\n\t\t\t\t\t\t\"text\": {\n\t\t\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\t\t\"emoji\": true,\n\t\t\t\t\t\t\t\"text\": \"Both\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"value\": \"Both\"\n\t\t\t\t\t}\n\t\t\t\t],\n                \"initial_option\": {\n                  \"text\": { \"type\": \"plain_text\", \"text\": \"Both\" },\n                  \"value\": \"Both\"\n                }\n            }\n\t\t},\n\t\t{\n\t\t\t\"type\": \"divider\"\n\t\t},\n\t\t{\n\t\t\t\"type\": \"section\",\n            \"block_id\": \"evn_block\",\n\t\t\t\"text\": {\n\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\"text\": \"Environment(*)\"\n\t\t\t},\n            \"accessory\": {\n                \"type\": \"static_select\",\n                \"action_id\": \"evn_input\",\n\t\t\t\t\"placeholder\": {\n\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\"emoji\": true,\n\t\t\t\t\t\"text\": \"Select ENV\"\n\t\t\t\t},\n                \"options\": [\n\t\t\t\t\t{\n\t\t\t\t\t\t\"text\": {\n\t\t\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\t\t\"emoji\": true,\n\t\t\t\t\t\t\t\"text\": \"LOCAL\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"value\": \"LOCAL\"\n\t\t\t\t\t},\n\t\t\t\t\t{\n\t\t\t\t\t\t\"text\": {\n\t\t\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\t\t\"emoji\": true,\n\t\t\t\t\t\t\t\"text\": \"SIT\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"value\": \"SIT\"\n\t\t\t\t\t}\n\t\t\t\t],\n                \"initial_option\": {\n                  \"text\": { \"type\": \"plain_text\", \"text\": \"LOCAL\" },\n                  \"value\": \"LOCAL\"\n                }\n            }\n\t\t},\n\t\t{\n\t\t\t\"type\": \"divider\"\n\t\t},\n\t\t{\n\t\t\t\"type\": \"section\",\n            \"block_id\": \"ptype_block\",\n\t\t\t\"text\": {\n\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\"text\": \"Product Type(*)\"\n\t\t\t},\n            \"accessory\": {\n                \"type\": \"static_select\",\n                \"action_id\": \"ptype_input\",\n\t\t\t\t\"placeholder\": {\n\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\"emoji\": true,\n\t\t\t\t\t\"text\": \"Select Product Type\"\n\t\t\t\t},\n                \"options\": [\n\t\t\t\t\t{\n\t\t\t\t\t\t\"text\": {\n\t\t\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\t\t\"emoji\": true,\n\t\t\t\t\t\t\t\"text\": \"RNG Casino\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"value\": \"RNG\"\n\t\t\t\t\t},\n\t\t\t\t\t{\n\t\t\t\t\t\t\"text\": {\n\t\t\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\t\t\"emoji\": true,\n\t\t\t\t\t\t\t\"text\": \"Live Casino\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"value\": \"Live\"\n\t\t\t\t\t}\n\t\t\t\t],\n                \"initial_option\": {\n                  \"text\": { \"type\": \"plain_text\", \"text\": \"RNG Casino\" },\n                  \"value\": \"RNG\"\n                }\n            }\n\t\t},\n        {\n            \"type\": \"section\",\n            \"block_id\": \"psetting_block\",\n\t\t\t\"text\": {\n\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\"text\": \"StakeLevel Type\"\n\t\t\t},\n            \"accessory\": {\n              \"type\": \"static_select\",\n                \"action_id\": \"psetting_input\",\n\t\t\t\t\"placeholder\": {\n\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\"emoji\": true,\n\t\t\t\t\t\"text\": \"Setting - Choice\"\n\t\t\t\t},\n                \"options\": [\n                    {\n\t\t\t\t\t\t\"text\": {\n\t\t\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\t\t\"emoji\": true,\n\t\t\t\t\t\t\t\"text\": \"None\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"value\": \"0_0\"\n\t\t\t\t\t},\n\t\t\t\t\t{\n\t\t\t\t\t\t\"text\": {\n\t\t\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\t\t\"emoji\": true,\n\t\t\t\t\t\t\t\"text\": \"Single\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"value\": \"7_0\"\n\t\t\t\t\t},\n\t\t\t\t\t{\n\t\t\t\t\t\t\"text\": {\n\t\t\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\t\t\"emoji\": true,\n\t\t\t\t\t\t\t\"text\": \"Multiple - 1\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"value\": \"17_1\"\n\t\t\t\t\t},\n\t\t\t\t\t{\n\t\t\t\t\t\t\"text\": {\n\t\t\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\t\t\"emoji\": true,\n\t\t\t\t\t\t\t\"text\": \"Multiple - 2\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"value\": \"17_2\"\n\t\t\t\t\t},\n\t\t\t\t\t{\n\t\t\t\t\t\t\"text\": {\n\t\t\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\t\t\"emoji\": true,\n\t\t\t\t\t\t\t\"text\": \"Multiple - 3\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"value\": \"17_3\"\n\t\t\t\t\t},\n\t\t\t\t\t{\n\t\t\t\t\t\t\"text\": {\n\t\t\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\t\t\"emoji\": true,\n\t\t\t\t\t\t\t\"text\": \"Multiple - 4\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"value\": \"17_4\"\n\t\t\t\t\t},\n\t\t\t\t\t{\n\t\t\t\t\t\t\"text\": {\n\t\t\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\t\t\"emoji\": true,\n\t\t\t\t\t\t\t\"text\": \"Multiple - 5\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"value\": \"17_5\"\n\t\t\t\t\t},\n\t\t\t\t\t{\n\t\t\t\t\t\t\"text\": {\n\t\t\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\t\t\"emoji\": true,\n\t\t\t\t\t\t\t\"text\": \"Multiple - 6\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"value\": \"17_6\"\n\t\t\t\t\t}\n\t\t\t\t],\n                \"initial_option\": {\n                  \"text\": { \"type\": \"plain_text\", \"text\": \"None\" },\n                  \"value\": \"0_0\"\n                }\n            }\n        },\n        {\n\t\t\t\"type\": \"divider\"\n\t\t},\n        {\n          \"type\": \"input\",\n          \"block_id\": \"product_block\",\n          \"label\": {\n            \"type\": \"plain_text\",\n            \"text\": \"Product ID(*)\"\n          },\n          \"element\": {\n            \"type\": \"plain_text_input\",\n            \"action_id\": \"product_input\",\n            \"placeholder\": {\n              \"type\": \"plain_text\",\n              \"text\": \"123\"\n            },\n            \"initial_value\": \"{{ $json.action_decode.NewProductID }}\"\n          }\n        },\n        {\n          \"type\": \"input\",\n          \"block_id\": \"pname_block\",\n          \"label\": {\n            \"type\": \"plain_text\",\n            \"text\": \"Product Name(*)\"\n          },\n          \"element\": {\n            \"type\": \"plain_text_input\",\n            \"action_id\": \"pname_input\",\n            \"placeholder\": {\n              \"type\": \"plain_text\",\n              \"text\": \"ABC Game\"\n            },\n            \"initial_value\": \"{{ $json.action_decode.ProductName }}\"\n          }\n        },\n        {\n          \"type\": \"input\",\n          \"block_id\": \"pcode_block\",\n          \"label\": {\n            \"type\": \"plain_text\",\n            \"text\": \"Product Prefix\"\n          },\n          \"element\": {\n            \"type\": \"plain_text_input\",\n            \"action_id\": \"pcode_input\",\n            \"placeholder\": {\n              \"type\": \"plain_text\",\n              \"text\": \"ABC\"\n            },\n            \"initial_value\": \"{{ $json.action_decode.ProductPrefix }}\"\n          }\n        },\n        {\n          \"type\": \"input\",\n          \"block_id\": \"sname_block\",\n          \"label\": {\n            \"type\": \"plain_text\",\n            \"text\": \"Sport Name(*)\"\n          },\n          \"element\": {\n            \"type\": \"plain_text_input\",\n            \"action_id\": \"sname_input\",\n            \"placeholder\": {\n              \"type\": \"plain_text\",\n              \"text\": \"Sport Name\"\n            },\n            \"initial_value\": \"{{ $json.action_decode.SportName }}\"\n          }\n        },\n        {\n          \"type\": \"input\",\n          \"block_id\": \"sport_block\",\n          \"label\": {\n            \"type\": \"plain_text\",\n            \"text\": \"Sport Type ID(*)\"\n          },\n          \"element\": {\n            \"type\": \"plain_text_input\",\n            \"action_id\": \"sport_input\",\n            \"placeholder\": {\n              \"type\": \"plain_text\",\n              \"text\": \"456\"\n            },\n            \"initial_value\": \"{{ $json.action_decode.NewSportID }}\"\n          }\n        },\n        {\n          \"type\": \"input\",\n          \"block_id\": \"bettype_block\",\n          \"label\": {\n            \"type\": \"plain_text\",\n            \"text\": \"Bet Type Range(*)\"\n          },\n          \"element\": {\n            \"type\": \"plain_text_input\",\n            \"action_id\": \"bettype_input\",\n            \"placeholder\": {\n              \"type\": \"plain_text\",\n              \"text\": \"2000 - 3000\"\n            },\n            \"initial_value\": \"{{ $json.action_decode.BettypeFrom }}-{{ $json.action_decode.BettypeTo }}\"\n          }\n        },\n        {\n          \"type\": \"input\",\n          \"block_id\": \"btprize_block\",\n          \"label\": {\n            \"type\": \"plain_text\",\n            \"text\": \"Bet Type Prize\"\n          },\n          \"element\": {\n            \"type\": \"plain_text_input\",\n            \"action_id\": \"btprize_input\",\n            \"placeholder\": {\n              \"type\": \"plain_text\",\n              \"text\": \"0\"\n            },\n            \"initial_value\": \"{{ $json.action_decode.BettypeTo-1 }}\"\n          }\n        },\n        {\n          \"type\": \"input\",\n          \"block_id\": \"btcontribution_block\",\n          \"label\": {\n            \"type\": \"plain_text\",\n            \"text\": \"Bet Type Contribution\"\n          },\n          \"element\": {\n            \"type\": \"plain_text_input\",\n            \"action_id\": \"btcontribution_ipput\",\n            \"placeholder\": {\n              \"type\": \"plain_text\",\n              \"text\": \"0\"\n            },\n            \"initial_value\": \"{{ $json.action_decode.BettypeTo }}\"\n          }\n        },\n        {\n\t\t\t\"type\": \"divider\"\n\t\t},\n        {\n          \"type\": \"actions\",\n          \"elements\": [\n            {\n              \"type\": \"button\",\n              \"action_id\": \"submit_game\",\n              \"text\": { \"type\": \"plain_text\", \"text\": \"✅ Submit\" },\n              \"style\": \"primary\",\n              \"value\": \"approve_form_{{ $json.open_encode }}\",\n              \"action_id\": \"approve_form\"\n            },\n            {\n              \"type\": \"button\",\n              \"action_id\": \"save_game\",\n              \"text\": { \"type\": \"plain_text\",\"text\": \"💾 Save\" },\n              \"style\": \"primary\",\n              \"value\": \"save_clicked\"\n            },\n            {\n              \"type\": \"button\",\n              \"action_id\": \"close_game\",\n              \"text\": { \"type\": \"plain_text\", \"text\": \"❌ Close\" },\n              \"style\": \"danger\",\n              \"value\": \"reject\"\n            }\n          ]\n        }\n\t]\n}",
+        "text": "Product Config",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1664,
+        -640
+      ],
+      "id": "68207f85-d4af-41ed-a47c-7ecd4ae393b3",
+      "name": "Show Form",
+      "webhookId": "fb7ad1f8-4465-45d7-9ee8-7526da398365",
+      "credentials": {
+        "slackApi": {
+          "id": "eW4xpXO0KmlzF5Jq",
+          "name": "Slack Bobby Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $json.channel }}",
+          "mode": "id"
+        },
+        "messageType": "block",
+        "blocksUi": "={\n  \"channel\": \"{{ $json.channel }}\",\n  \"blocks\": [\n   {\n      \"type\": \"section\",\n      \"text\": {\n        \"type\": \"mrkdwn\",\n        \"text\": \"*PO -> TL/AL Agents - Confirmation*\"\n      }\n    },\n    {\n        \"type\": \"divider\"\n    },\n    {\n      \"type\": \"section\",\n      \"block_id\": \"block_confirm\",\n      \"fields\": [\n        {\n          \"type\": \"mrkdwn\",\n          \"text\": \"*Model:*\\n{{ $json.product.model }}\"\n        },\n        {\n          \"type\": \"mrkdwn\",\n          \"text\": \"*Environment:*\\n{{ $json.product.evn }}\"\n        },\n        {\n          \"type\": \"mrkdwn\",\n          \"text\": \"*Product Type:*\\n{{ $json.product.product_type }} Casino\"\n        },\n        {\n          \"type\": \"mrkdwn\",\n          \"text\": \"*Setting Type:*\\n{{ $json.product.product_setting }}\"\n        }\n      ]\n    },\n    {\n        \"type\": \"divider\"\n    },\n    {\n      \"type\": \"section\",\n      \"block_id\": \"block_product\",\n      \"fields\": [\n        {\n          \"type\": \"mrkdwn\",\n          \"text\": \"*Product ID:*\\n{{ $json.product.product_id }}\"\n        },\n        {\n          \"type\": \"mrkdwn\",\n          \"text\": \"*Product Code:*\\n{{ $json.product.product_code }}\"\n        },\n        {\n          \"type\": \"mrkdwn\",\n          \"text\": \"*Product Name:*\\n{{ $json.product.product_name }}\"\n        },\n        {\n          \"type\": \"mrkdwn\",\n          \"text\": \"*Sport ID:*\\n{{ $json.product.sport_id }}\"\n        },\n        {\n          \"type\": \"mrkdwn\",\n          \"text\": \"*Sport Name:*\\n{{ $json.product.sport_name }}\"\n        },\n        {\n          \"type\": \"mrkdwn\",\n          \"text\": \"*Bettype Range:*\\n{{ $json.product.bettype_from }}-{{ $json.product.bettype_to }}\"\n        },\n        {\n          \"type\": \"mrkdwn\",\n          \"text\": \"*Bettype Prize:*\\n{{ $json.product.bettype_prize }}\"\n        },\n        {\n          \"type\": \"mrkdwn\",\n          \"text\": \"*Bettype Contribution:*\\n{{ $json.product.bettype_contribution }}\"\n        }\n      ]\n    },\n    {\n      \"type\": \"divider\"\n    },\n    {\n      \"type\": \"section\",\n      \"text\": {\n        \"type\": \"mrkdwn\",\n        \"text\": \"*Here is the 3rd Game's Checklist:*\\n:one: - Init Product-Sport-Bettype (Events)\\n:two: - Init SportBettypeMatrix-RefResource (Reports)\\n:three: - Init Product Status/Setting/etc... (Credit)\\n:four: - Init Setting DCS/Comm/etc... (Deposit)\"\n      }\n    },\n    {\n          \"type\": \"actions\",\n          \"elements\": [\n            {\n              \"type\": \"button\",\n              \"text\": { \"type\": \"plain_text\", \"text\": \"✅ Process\" },\n              \"style\": \"primary\",\n              \"value\": \"process_{{ $json.block_encode }}\",\n              \"action_id\": \"process_{{ $json.approve_encode}}\"\n            },\n            {\n              \"type\": \"button\",\n              \"text\": { \"type\": \"plain_text\", \"text\": \"❌ Cancel\" },\n              \"style\": \"danger\",\n              \"value\": \"cancel\",\n              \"action_id\": \"cancel_{{ $json.approve_encode }}\"\n            } \n          ]\n        }\n  ]\n}\n",
+        "text": "={{ $json.action_name }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        2480,
+        -624
+      ],
+      "id": "15224b87-f3f1-4058-8b21-e4a6f7d6fc06",
+      "name": "Confirm & Process",
+      "webhookId": "0ba46724-b733-41ee-b10e-7983b429f2f3",
+      "credentials": {
+        "slackApi": {
+          "id": "eW4xpXO0KmlzF5Jq",
+          "name": "Slack Bobby Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "dfd893e5-a59b-4b93-b3fe-b49cd37b0d5c",
+              "leftValue": "={{ $json.action_name }}",
+              "rightValue": "open",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1440,
+        -528
+      ],
+      "id": "a6912dc3-74bf-47f2-b0f4-5c8ef8fdf5fd",
+      "name": "Check Action Type"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "fa824159-2489-4fab-8393-51dfb66d7fc8",
+              "leftValue": "={{ $json.action_button }}",
+              "rightValue": "open_form",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1184,
+        -544
+      ],
+      "id": "68a9df94-2803-4843-a13a-a8d35c1e791b",
+      "name": "Is Button Action"
+    },
+    {
+      "parameters": {
+        "content": "## Confirmation Flow",
+        "height": 672,
+        "width": 2544,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        624,
+        -880
+      ],
+      "typeVersion": 1,
+      "id": "e475a025-5730-4704-af81-ff1c175babd8",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## PO Interaction",
+        "height": 464,
+        "width": 1776,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -208,
+        -176
+      ],
+      "typeVersion": 1,
+      "id": "2316425b-a6f7-481c-93c0-239c336fc4b9",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nlet result = $json.output;\nlet message;\nlet data;\nlet action_encode;\nlet channel;\nlet message_ts;\n\ntry {\n  //result = result.repalce('``','').replace('json\\n', '')\n  //var JS_result = JSON.parse(result);\n  message = result.message;\n  message_ts = result.message_ts || 0;\n  data = result.data;\n  action_encode = Buffer.from(JSON.stringify(data)).toString(\"base64\");\n  channel = result.channel;\n}\ncatch (e) {\n  message = result.message;\n  channel = result.channel || \"\";\n}\n\nreturn [{ \n  json: {\n    channel:channel,\n    message: message, \n    message_ts: message_ts, \n    data: data, \n    action_encode: action_encode \n}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        -112
+      ],
+      "id": "24cb9163-711b-4230-9eff-cf60c6cafeb4",
+      "name": "Structure Message"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nvar payload = JSON.parse($json.body[\"payload\"]);\nvar actions = payload.actions || [];\nvar check_button = false;\nvar action_name;\nlet action_encoded;\nvar action_decode;\n//var \"message_ts\": \"1759804099.061949\",\nvar open_message_ts = 0;\nvar open_encode;\nvar approve_encode;\nvar process_encode, product_encode;\nvar selENV = 'LOCAL';\n\nvar callback_id = payload.callback_id || \"\";\nvar type_submit = payload.type || 'NA';\nif (callback_id === 'approve_modal' || type_submit === 'view_submission') {\n  check_button = true;\n  action_name = type_submit === 'view_submission' ? 'process' : 'approve';\n  product_encode = payload.private_metadata;\n}\nelse {\n  actions.forEach(s => {\n    if (s.type === 'button'){\n      check_button = true;\n      action_name = s.value.split(\"_\")[0];\n      if (action_name === 'open') {\n        action_encoded = s.value.split(\"_\")[2];\n      } else {\n        action_encoded = s.action_id;\n      }\n      if (action_name === 'process') {\n        product_encode = s.value.split(\"_\")[1];\n        const product_decode = JSON.parse(Buffer.from(product_encode, \"base64\").toString(\"utf8\"));\n        selENV = product_decode.evn || 'NA';\n      }\n      return 1;\n    }\n  });\n}\n// open config form\nif (action_name === 'open') {\n  open_message_ts = payload.container.message_ts;\n  action_decode = JSON.parse(Buffer.from(action_encoded, \"base64\").toString(\"utf8\"));\n  open_encode = Buffer.from(JSON.stringify({open_message_ts: open_message_ts})).toString(\"base64\");\n}\n\n// close config form\nif (action_name === 'close') {\n  open_message_ts = payload.container.message_ts;\n}\n\n// submit form\nif (action_name === 'approve') {\n  open_message_ts = payload.container.message_ts;\n  // parser form state\n  action_state = payload.state;\n  approve_encode = Buffer.from(JSON.stringify({open_message_ts: open_message_ts})).toString(\"base64\");\n}\n\nif (action_name === 'process') {\n  open_message_ts = payload.container.message_ts;\n  // parser form state\n  action_state = {};\n  process_encode = Buffer.from(JSON.stringify({open_message_ts: open_message_ts})).toString(\"base64\");\n}\n\n//Buffer.from(JSON.stringify(data)).toString(\"base64\")\n\nreturn [{ json: { \n    payload: payload, \n    action_button:  check_button, \n    action_name: action_name, \n    action_decode: action_decode,\n    open_encode: open_encode,\n    approve_encode: approve_encode,\n    process_encode: process_encode,\n    product_encode: product_encode,\n    ENV: selENV\n  }}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        944,
+        -544
+      ],
+      "id": "77e45e2a-403a-4d56-afef-e0cbd19c1859",
+      "name": "Classify Action"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $json.channel }}",
+          "mode": "id"
+        },
+        "messageType": "block",
+        "blocksUi": "={\n  \"channel\": \"{{ $json.channel }}\",\n  \"blocks\": [\n    {\n      \"type\": \"section\",\n      \"text\": { \"type\": \"mrkdwn\", \"text\": \"*PO Agent - Product Information*\" }\n    },\n    {\n    \t\"type\": \"divider\"\n\t},\n    {\n      \"type\": \"section\",\n      \"text\": {\n        \"type\": \"mrkdwn\",\n        \"text\": \"{{ $json.message }}.\\n\\n☑️ Product: {{ $json.data.ProductName }} (available)\\n✅ Sport: {{ $json.data.SportName }} (available)\"\n      }\n    },\n    {\n    \t\"type\": \"divider\"\n\t},\n    {\n      \"type\": \"actions\",\n      \"elements\": [\n        {\n          \"type\": \"button\",\n          \"text\": { \"type\": \"plain_text\", \"text\": \"⚙️ Configure\" },\n          \"action_id\": \"open_config\",\n          \"value\": \"open_form_{{ $json.action_encode }}\"\n        },\n         {\n            \"type\": \"button\",\n            \"action_id\": \"close_conf\",\n            \"text\": { \"type\": \"plain_text\", \"text\": \"❌ Close\" },\n            \"style\": \"danger\",\n            \"value\": \"close_conf\"\n          }\n      ]\n    }\n  ]\n}\n",
+        "text": "Product Setup",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1296,
+        -128
+      ],
+      "id": "f2dfc4d9-74f7-4bf8-9876-f50e3620fb6f",
+      "name": "Send a config setup",
+      "webhookId": "812a2380-7b9c-46a0-ba9d-ce2d02b2d07e",
+      "credentials": {
+        "slackApi": {
+          "id": "eW4xpXO0KmlzF5Jq",
+          "name": "Slack Bobby Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.action_name }}",
+                    "rightValue": "approve",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "eeb70752-e5bf-45df-8a62-530a2a9fe8fe"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "approve"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "6bd2fe9a-3217-4a85-8f51-f15642fd436b",
+                    "leftValue": "={{ $json.action_name }}",
+                    "rightValue": "close",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Close Config"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "16db3307-37fa-4488-aefd-a90e4975ae58",
+                    "leftValue": "={{ $json.action_name }}",
+                    "rightValue": "cancel",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "cancel"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "377c6110-e11e-4346-a325-3047e53c50e7",
+                    "leftValue": "={{ $json.action_name }}",
+                    "rightValue": "process",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "process 3rd setup"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "09c1452a-5aec-4414-a32b-08527b5148fd",
+                    "leftValue": "={{ $json.action_name }}",
+                    "rightValue": "stop",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "stop process"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "102d306d-6001-4adf-ba62-60150e2f53cd",
+                    "leftValue": "={{ $json.action_name }}",
+                    "rightValue": "reject",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Close Form"
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        1824,
+        -528
+      ],
+      "id": "da7d483f-8e6a-4dbb-b27f-c97796eb5dc8",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $json.payload.container.channel_id }}",
+          "mode": "id"
+        },
+        "timestamp": "={{ $json.payload.container.message_ts }}"
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        2896,
+        -464
+      ],
+      "id": "44201820-57db-4fd7-b660-8d0f131aa0b6",
+      "name": "Close a form",
+      "webhookId": "f1d49937-86a3-404f-bc72-00540990f7f8",
+      "credentials": {
+        "slackApi": {
+          "id": "eW4xpXO0KmlzF5Jq",
+          "name": "Slack Bobby Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "let actions = $json.payload.actions || [];\nlet ptype_sel = ''\nlet block_id = '';\n\nactions.forEach(s => {\n  if (s.type === 'static_select' && s.block_id === 'ptype_block') {\n    block_id = s.block_id;\n    ptype_sel = s.selected_option.value;\n  }\n});\nlet stake_level = ptype_sel === 'Live' ? '7_0' : '0_0';\nlet stake_text = ptype_sel === 'Live' ? 'Single' : 'N/A';\nif (block_id === 'ptype_block') {\n  //payload.blocks.find(b => b.block_id === \"psetting_block\").accessory.initial_option.value = stake_level;\n  //$json.payload.view.blocks.find(b => b.block_id === \"psetting_block\").selected_option.value = stake_level;\n  \n  return [\n    {\n      json: {\n        product_type: ptype_sel,\n        stake_level: stake_level,\n        stake_text: stake_text,\n        payload: $json.payload\n      }\n    }\n  ];\n}\nreturn [];\n\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1440,
+        -688
+      ],
+      "id": "3ac4ec43-b75f-40ba-a071-c059bfb5e191",
+      "name": "Code Return"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nvar data = $json.payload.state.values || [];\nvar sel_model = data.model_block.model_input.selected_option || {};\nvar sel_evn = data.evn_block.evn_input.selected_option || {};\nvar sel_ptype = data.ptype_block.ptype_input.selected_option || {};\nvar sel_psetting = data.psetting_block.psetting_input.selected_option || {};\nvar sel_bettype = data.bettype_block.bettype_input.value || \"0-0\";\nvar product = {\n  \"model\": sel_model.value || \"\",\n  \"evn\": sel_evn.value || \"\",\n  \"product_type\": sel_ptype.value || \"\",\n  \"product_setting\": sel_psetting.value || \"0_0\",\n  \"product_id\": data.product_block.product_input.value || 0,\n  \"product_name\": data.pname_block.pname_input.value || \"\",\n  \"product_code\": data.pcode_block.pcode_input.value || \"\",\n  \"sport_id\": data.sport_block.sport_input.value || 0,\n  \"sport_name\": data.sname_block.sname_input.value || \"\",\n  \"bettype_from\": sel_bettype.split(\"-\")[0] || 0,\n  \"bettype_to\": sel_bettype.split(\"-\")[1] || 0,\n  \"bettype_prize\": data.btprize_block.btprize_input.value || 0,\n  \"bettype_contribution\": data.btcontribution_block.btcontribution_ipput.value || 0\n};\n\n// check valid data\nvar is_valid = true;\nvar err_msg = '';\nif (product.model === '' \n   || product.evn === ''\n   || product.product_type === ''\n   || product.product_id === 0 \n   || product.product_name === ''\n   || product.sport_id === 0\n   || product.sport_name === ''\n   || product.bettype_from === 0\n   || product.bettype_to === 0\n   || product.bettype_from >= product.bettype_to) {\n  is_valid = false;\n  err_msg = product.product_type + ' Casino product info(s) are invalid.';\n}\n\n// check product setting type\nif (product.product_type === 'RNG' && product.product_setting != '0_0') {\n  is_valid = false;\n  err_msg = product.product_type + ' Casino product setting type is invalid.';\n}\n\nif (product.product_type === 'Live' && product.product_setting == '0_0') {\n  is_valid = false;\n  err_msg = product.product_type + ' Casino product setting type is invalid.';\n}\n\nvar block_encode;\nif (is_valid === true){\n  block_encode = Buffer.from(JSON.stringify(product)).toString(\"base64\");\n}\n\nreturn [\n  {\n    json: {\n      \"trigger_id\": $json.payload.trigger_id,\n      \"channel\": $json.payload.container.channel_id,\n      \"message_ts\": $json.payload.container.message_ts,\n      \"username\": $json.payload.user.name,\n      \"approve_encode\": $json.approve_encode,\n      \"action_name\": $json.action_name,\n      \"product\": product,\n      \"block_encode\": block_encode,\n      \"is_valid\": is_valid,\n      \"err_msg\": err_msg\n    }\n  }\n]"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2048,
+        -640
+      ],
+      "id": "0193bf92-f5c4-4dfa-b9bb-2d60791819f9",
+      "name": "Data Validation"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "bc504e6f-67ee-4b22-bf68-f6bef1e56d31",
+              "leftValue": "={{ $json.is_valid }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2240,
+        -640
+      ],
+      "id": "39cfc41c-b4de-4ffd-b3ee-42e956898552",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $json.channel }}",
+          "mode": "id"
+        },
+        "ts": "={{ $json.message_ts }}",
+        "text": "=Please double check the product information again. {{ $json.err_msg }}",
+        "updateFields": {},
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        2752,
+        -800
+      ],
+      "id": "03545e5f-2e64-4b4e-9c01-9cd4fb5462e5",
+      "name": "Invalid data",
+      "webhookId": "bc13ffc9-2165-4541-9106-0706e6c4b389",
+      "credentials": {
+        "slackApi": {
+          "id": "eW4xpXO0KmlzF5Jq",
+          "name": "Slack Bobby Bot"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nvar blocks = $json.message.blocks || [];\nvar actions = [];\nblocks.forEach(s => {\n  if (s.type === 'actions') {\n    actions = s.elements;\n    return 1;\n  }\n});\n\nvar chk_name, message_ts;\nvar action_name, action_encode, action_decode;\nvar product_encode, product_decode;\n\nactions.forEach(s => {\n  chk_name = s.value.split(\"_\")[0];\n  if (s.type === 'button' \n      && (chk_name === 'approve' \n          || chk_name === 'process' \n          || chk_name === 'stop')){\n    action_name = chk_name;\n    action_encode = s.action_id;\n    if (action_name === 'stop') {\n      product_encode = s.value.split(\"_\")[1];\n    }\n    return 1;\n  }\n});\n\n// show input form\nif (action_name === 'approve') {\n  // close previous config message\n  action_decode = JSON.parse(Buffer.from(action_encode.split('_')[1], \"base64\").toString(\"utf8\"));\n  message_ts = action_decode.open_message_ts;\n}\n\nif (action_name === 'process') {\n  // close previous submit form\n  action_decode = JSON.parse(Buffer.from(action_encode.split('_')[1], \"base64\").toString(\"utf8\"));\n  message_ts = action_decode.open_message_ts;\n}\n\n// InProgress\nif (action_name === 'stop') {\n  // close previous process confirmation\n  action_decode = JSON.parse(Buffer.from(action_encode.split('_')[1], \"base64\").toString(\"utf8\"));\n  message_ts = action_decode.open_message_ts;\n  product_decode = JSON.parse(Buffer.from(product_encode, \"base64\").toString(\"utf8\"));\n}\n\nreturn [\n  {\n    json: {\n      \"payload\": {\n        \"container\": {\n          channel_id: $json.channel,\n          message_ts: message_ts,\n          action_name: action_name,\n          product_decode: product_decode\n        }\n      }\n    }\n  }\n]"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2720,
+        -624
+      ],
+      "id": "a578bd70-8130-4a82-882b-df7491ade8a6",
+      "name": "Parser action form"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $json.payload.container.channel_id }}",
+          "mode": "id"
+        },
+        "messageType": "block",
+        "blocksUi": "={\n  \"blocks\": [\n\t\t{\n\t\t\t\"type\": \"section\",\n\t\t\t\"text\": {\n\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\"text\": \"*TL/AL -> Dev Agents - Implement {{$json.product.product_name}} integration process*\"\n\t\t\t}\n\t\t},\n\t\t{\n\t\t\t\"type\": \"divider\"\n\t\t},\n        {\n\t\t\t\"type\": \"section\",\n            \"text\": {\n              \"type\": \"mrkdwn\",\n              \"text\": \"#1 - Dev_1 - Init Product-Sport-Bettype (Events) - [██████████] 100%\\n#2 - Dev_1 - Init SportBettypeMatrix-RefResource (Reports) - [██████----] 60%\\n#3 - Dev_2 - Init Product Status/Setting/etc... (Credit) - [███-------] 30%\\n#4 - Dev_3 - Init Setting DCS/Comm/etc... (Deposit) - [█---------] 10%\"\n          }\n\t\t},\n        {\n          \"type\": \"actions\",\n          \"elements\": [\n          {\n              \"type\": \"button\",\n              \"text\": { \"type\": \"plain_text\", \"text\": \"❌ Stop\" },\n              \"style\": \"danger\",\n              \"value\": \"stop_{{ $json.product_encode }}\",\n              \"action_id\": \"stop_{{ $json.process_encode }}\"\n            }\n          ]\n        }\n    ]\n}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        2480,
+        -352
+      ],
+      "id": "8ce3d2af-872f-4b07-8b2c-7ea1812ac199",
+      "name": "Send a progress form",
+      "webhookId": "b6b4b8b3-a231-4f85-afbc-e6ad00d3726d",
+      "credentials": {
+        "slackApi": {
+          "id": "eW4xpXO0KmlzF5Jq",
+          "name": "Slack Bobby Bot"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{ \n  \"message\": \"{{ $fromAI('output') }}\",\n  \"channel\": \"{{ $fromAI('channel') }}\",\n  \"message_ts\": \"{{ $fromAI('message_ts') }}\",\n  \"data\": {\n    \"ProductName\": \"{{ $fromAI('ProductName') }}\",\n    \"ProductPrefix\": \"{{ $fromAI('ProductPrefix') }}\",\n    \"SportName\": \"{{ $fromAI('SportName') }}\",\n    \"NewProductID\": \"{{ $fromAI('NewProductID') }}\",\n    \"NewSportID\": \"{{ $fromAI('NewSportID') }}\",\n    \"ProductExisted\": \"{{ $fromAI('ProductExisted') }}\",\n    \"BettypeFrom\": \"{{ $fromAI('BettypeFrom') }}\",\n    \"BettypeTo\": \"{{ $fromAI('BettypeTo') }}\",\n    \"IsHistory\": \"{{ $fromAI('IsHistory') }}\"\n  }\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        800,
+        80
+      ],
+      "id": "85cf9e42-33b6-4b6e-8170-662d459082af",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://starix.slack.com/api/views.open",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer xoxb-8352731735536-9601395808884-zbZNx1zaQEH6vUmLW1GCtJgh"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"trigger_id\": \"{{ $json.payload.trigger_id }}\",\n  \"view\": {\n    \"type\": \"modal\",\n    \"callback_id\": \"approve_modal\",\n    \"private_metadata\": \"{{ $json.product_encode }}\",\n    \"title\": {\n      \"type\": \"plain_text\",\n      \"text\": \"PO Agent - Product Info\"\n    },\n    \"submit\": {\n      \"type\": \"plain_text\",\n      \"text\": \"Submit\"\n    },\n    \"close\": {\n      \"type\": \"plain_text\",\n      \"text\": \"Cancel\"\n    },\n    \"blocks\": [\n\t\t{\n\t\t\t\"type\": \"section\",\n\t\t\t\"text\": {\n\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\"text\": \":wave: Hey {{$json.payload.user.name}}!\\n\\nPlease fill out the configuration details below:\",\n\t\t\t\t\"emoji\": true\n\t\t\t}\n\t\t},\n        {\n\t\t\t\"type\": \"divider\"\n\t\t},\n        {\n\t\t\t\"type\": \"section\",\n            \"block_id\": \"model_block\",\n\t\t\t\"text\": {\n\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\"text\": \"Integration Model(*)\"\n\t\t\t},\n            \"accessory\": {\n                \"type\": \"static_select\",\n                \"action_id\": \"model_input\",\n\t\t\t\t\"placeholder\": {\n\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\"emoji\": true,\n\t\t\t\t\t\"text\": \"Select Model\"\n\t\t\t\t},\n                \"options\": [\n\t\t\t\t\t{\n\t\t\t\t\t\t\"text\": {\n\t\t\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\t\t\"emoji\": true,\n\t\t\t\t\t\t\t\"text\": \"Credit Only\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"value\": \"Credit\"\n\t\t\t\t\t},\n\t\t\t\t\t{\n\t\t\t\t\t\t\"text\": {\n\t\t\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\t\t\"emoji\": true,\n\t\t\t\t\t\t\t\"text\": \"Deposit Only\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"value\": \"Deposit\"\n\t\t\t\t\t},\n                    {\n\t\t\t\t\t\t\"text\": {\n\t\t\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\t\t\"emoji\": true,\n\t\t\t\t\t\t\t\"text\": \"Both\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"value\": \"Both\"\n\t\t\t\t\t}\n\t\t\t\t],\n                \"initial_option\": {\n                  \"text\": { \"type\": \"plain_text\", \"text\": \"Both\" },\n                  \"value\": \"Both\"\n                }\n            }\n\t\t},\n\t\t{\n\t\t\t\"type\": \"divider\"\n\t\t},\n\t\t{\n\t\t\t\"type\": \"section\",\n            \"block_id\": \"evn_block\",\n\t\t\t\"text\": {\n\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\"text\": \"Environment(*)\"\n\t\t\t},\n            \"accessory\": {\n                \"type\": \"static_select\",\n                \"action_id\": \"evn_input\",\n\t\t\t\t\"placeholder\": {\n\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\"emoji\": true,\n\t\t\t\t\t\"text\": \"Select ENV\"\n\t\t\t\t},\n                \"options\": [\n\t\t\t\t\t{\n\t\t\t\t\t\t\"text\": {\n\t\t\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\t\t\"emoji\": true,\n\t\t\t\t\t\t\t\"text\": \"LOCAL\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"value\": \"LOCAL\"\n\t\t\t\t\t},\n\t\t\t\t\t{\n\t\t\t\t\t\t\"text\": {\n\t\t\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\t\t\"emoji\": true,\n\t\t\t\t\t\t\t\"text\": \"SIT\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"value\": \"SIT\"\n\t\t\t\t\t}\n\t\t\t\t],\n                \"initial_option\": {\n                  \"text\": { \"type\": \"plain_text\", \"text\": \"LOCAL\" },\n                  \"value\": \"LOCAL\"\n                }\n            }\n\t\t},\n\t\t{\n\t\t\t\"type\": \"divider\"\n\t\t},\n\t\t{\n\t\t\t\"type\": \"section\",\n            \"block_id\": \"ptype_block\",\n\t\t\t\"text\": {\n\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\"text\": \"Product Type(*)\"\n\t\t\t},\n            \"accessory\": {\n                \"type\": \"static_select\",\n                \"action_id\": \"ptype_input\",\n\t\t\t\t\"placeholder\": {\n\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\"emoji\": true,\n\t\t\t\t\t\"text\": \"Select Product Type\"\n\t\t\t\t},\n                \"options\": [\n\t\t\t\t\t{\n\t\t\t\t\t\t\"text\": {\n\t\t\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\t\t\"emoji\": true,\n\t\t\t\t\t\t\t\"text\": \"RNG Casino\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"value\": \"RNG\"\n\t\t\t\t\t},\n\t\t\t\t\t{\n\t\t\t\t\t\t\"text\": {\n\t\t\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\t\t\"emoji\": true,\n\t\t\t\t\t\t\t\"text\": \"Live Casino\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"value\": \"Live\"\n\t\t\t\t\t}\n\t\t\t\t],\n                \"initial_option\": {\n                  \"text\": { \"type\": \"plain_text\", \"text\": \"RNG Casino\" },\n                  \"value\": \"RNG\"\n                }\n            }\n\t\t},\n        {\n\t\t\t\"type\": \"divider\"\n\t\t},\n        {\n          \"type\": \"input\",\n          \"block_id\": \"product_block\",\n          \"label\": {\n            \"type\": \"plain_text\",\n            \"text\": \"Product ID(*)\"\n          },\n          \"element\": {\n            \"type\": \"plain_text_input\",\n            \"action_id\": \"product_input\",\n            \"placeholder\": {\n              \"type\": \"plain_text\",\n              \"text\": \"123\"\n            },\n            \"initial_value\": \"{{ $json.action_decode.NewProductID }}\"\n          }\n        },\n        {\n          \"type\": \"input\",\n          \"block_id\": \"pname_block\",\n          \"label\": {\n            \"type\": \"plain_text\",\n            \"text\": \"Product Name(*)\"\n          },\n          \"element\": {\n            \"type\": \"plain_text_input\",\n            \"action_id\": \"pname_input\",\n            \"placeholder\": {\n              \"type\": \"plain_text\",\n              \"text\": \"ABC Game\"\n            },\n            \"initial_value\": \"{{ $json.action_decode.ProductName }}\"\n          }\n        },\n        {\n          \"type\": \"input\",\n          \"block_id\": \"sname_block\",\n          \"label\": {\n            \"type\": \"plain_text\",\n            \"text\": \"Sport Name(*)\"\n          },\n          \"element\": {\n            \"type\": \"plain_text_input\",\n            \"action_id\": \"sname_input\",\n            \"placeholder\": {\n              \"type\": \"plain_text\",\n              \"text\": \"Sport Name\"\n            },\n            \"initial_value\": \"{{ $json.action_decode.SportName }}\"\n          }\n        },\n        {\n          \"type\": \"input\",\n          \"block_id\": \"sport_block\",\n          \"label\": {\n            \"type\": \"plain_text\",\n            \"text\": \"Sport Type ID(*)\"\n          },\n          \"element\": {\n            \"type\": \"plain_text_input\",\n            \"action_id\": \"sport_input\",\n            \"placeholder\": {\n              \"type\": \"plain_text\",\n              \"text\": \"456\"\n            },\n            \"initial_value\": \"{{ $json.action_decode.NewSportID }}\"\n          }\n        },\n        {\n          \"type\": \"input\",\n          \"block_id\": \"bettype_block\",\n          \"label\": {\n            \"type\": \"plain_text\",\n            \"text\": \"Bet Type Range(*)\"\n          },\n          \"element\": {\n            \"type\": \"plain_text_input\",\n            \"action_id\": \"bettype_input\",\n            \"placeholder\": {\n              \"type\": \"plain_text\",\n              \"text\": \"2990-2999\"\n            },\n            \"initial_value\": \"2990-2999\"\n          }\n        },\n        {\n          \"type\": \"input\",\n          \"block_id\": \"btprize_block\",\n          \"label\": {\n            \"type\": \"plain_text\",\n            \"text\": \"Bet Type Prize\"\n          },\n          \"element\": {\n            \"type\": \"plain_text_input\",\n            \"action_id\": \"btprize_input\",\n            \"placeholder\": {\n              \"type\": \"plain_text\",\n              \"text\": \"2998\"\n            },\n            \"initial_value\": \"2998\"\n          }\n        },\n        {\n          \"type\": \"input\",\n          \"block_id\": \"btcontribution_block\",\n          \"label\": {\n            \"type\": \"plain_text\",\n            \"text\": \"Bet Type Contribution\"\n          },\n          \"element\": {\n            \"type\": \"plain_text_input\",\n            \"action_id\": \"btcontribution_ipput\",\n            \"placeholder\": {\n              \"type\": \"plain_text\",\n              \"text\": \"2999\"\n            },\n            \"initial_value\": \"2999\"\n          }\n        }\n\t]\n  }\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1872,
+        -832
+      ],
+      "id": "43b8c488-272d-49ee-ae32-64b33eb8a8ed",
+      "name": "Popup Form Model",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://starix.slack.com/api/views.update",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer xoxb-8352731735536-9601395808884-zbZNx1zaQEH6vUmLW1GCtJgh"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"trigger_id\": \"{{ $json.payload.trigger_id }}\",\n  \"view_id\": \"{{ $json.payload.view.id }}\",\n  \"view\": {\n    \"type\": \"modal\",\n    \"callback_id\": \"approve_modal\",\n    \"private_metadata\": \"{{ $json.open_encode }}\",\n    \"title\": {\n      \"type\": \"plain_text\",\n      \"text\": \"PO Agent - Product Info\"\n    },\n    \"submit\": {\n      \"type\": \"plain_text\",\n      \"text\": \"Submit\"\n    },\n    \"close\": {\n      \"type\": \"plain_text\",\n      \"text\": \"Cancel\"\n    },\n    \"blocks\": [\n\t\t{\n\t\t\t\"type\": \"section\",\n\t\t\t\"text\": {\n\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\"text\": \":wave: Hey {{$json.payload.user.name}}!\\n\\nPlease fill out the configuration details below:\",\n\t\t\t\t\"emoji\": true\n\t\t\t}\n\t\t},\n        {\n\t\t\t\"type\": \"divider\"\n\t\t},\n        {\n\t\t\t\"type\": \"section\",\n            \"block_id\": \"model_block\",\n\t\t\t\"text\": {\n\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\"text\": \"Integration Model(*)\"\n\t\t\t},\n            \"accessory\": {\n                \"type\": \"static_select\",\n                \"action_id\": \"model_input\",\n\t\t\t\t\"placeholder\": {\n\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\"emoji\": true,\n\t\t\t\t\t\"text\": \"Select Model\"\n\t\t\t\t},\n                \"options\": [\n\t\t\t\t\t{\n\t\t\t\t\t\t\"text\": {\n\t\t\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\t\t\"emoji\": true,\n\t\t\t\t\t\t\t\"text\": \"Credit Only\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"value\": \"Credit\"\n\t\t\t\t\t},\n\t\t\t\t\t{\n\t\t\t\t\t\t\"text\": {\n\t\t\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\t\t\"emoji\": true,\n\t\t\t\t\t\t\t\"text\": \"Deposit Only\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"value\": \"Deposit\"\n\t\t\t\t\t},\n                    {\n\t\t\t\t\t\t\"text\": {\n\t\t\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\t\t\"emoji\": true,\n\t\t\t\t\t\t\t\"text\": \"Both\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"value\": \"Both\"\n\t\t\t\t\t}\n\t\t\t\t],\n                \"initial_option\": {\n                  \"text\": { \"type\": \"plain_text\", \"text\": \"Both\" },\n                  \"value\": \"Both\"\n                }\n            }\n\t\t},\n\t\t{\n\t\t\t\"type\": \"divider\"\n\t\t},\n\t\t{\n\t\t\t\"type\": \"section\",\n            \"block_id\": \"evn_block\",\n\t\t\t\"text\": {\n\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\"text\": \"Environment(*)\"\n\t\t\t},\n            \"accessory\": {\n                \"type\": \"static_select\",\n                \"action_id\": \"evn_input\",\n\t\t\t\t\"placeholder\": {\n\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\"emoji\": true,\n\t\t\t\t\t\"text\": \"Select ENV\"\n\t\t\t\t},\n                \"options\": [\n\t\t\t\t\t{\n\t\t\t\t\t\t\"text\": {\n\t\t\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\t\t\"emoji\": true,\n\t\t\t\t\t\t\t\"text\": \"LOCAL\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"value\": \"LOCAL\"\n\t\t\t\t\t},\n\t\t\t\t\t{\n\t\t\t\t\t\t\"text\": {\n\t\t\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\t\t\"emoji\": true,\n\t\t\t\t\t\t\t\"text\": \"SIT\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"value\": \"SIT\"\n\t\t\t\t\t}\n\t\t\t\t],\n                \"initial_option\": {\n                  \"text\": { \"type\": \"plain_text\", \"text\": \"LOCAL\" },\n                  \"value\": \"LOCAL\"\n                }\n            }\n\t\t},\n\t\t{\n\t\t\t\"type\": \"divider\"\n\t\t},\n\t\t{\n\t\t\t\"type\": \"section\",\n            \"block_id\": \"ptype_block\",\n\t\t\t\"text\": {\n\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\"text\": \"Product Type(*)\"\n\t\t\t},\n            \"accessory\": {\n                \"type\": \"static_select\",\n                \"action_id\": \"ptype_input\",\n\t\t\t\t\"placeholder\": {\n\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\"emoji\": true,\n\t\t\t\t\t\"text\": \"Select Product Type\"\n\t\t\t\t},\n                \"options\": [\n\t\t\t\t\t{\n\t\t\t\t\t\t\"text\": {\n\t\t\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\t\t\"emoji\": true,\n\t\t\t\t\t\t\t\"text\": \"RNG Casino\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"value\": \"RNG\"\n\t\t\t\t\t},\n\t\t\t\t\t{\n\t\t\t\t\t\t\"text\": {\n\t\t\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\t\t\"emoji\": true,\n\t\t\t\t\t\t\t\"text\": \"Live Casino\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"value\": \"Live\"\n\t\t\t\t\t}\n\t\t\t\t],\n                \"initial_option\": {\n                  \"text\": { \"type\": \"plain_text\", \"text\": \"RNG Casino\" },\n                  \"value\": \"RNG\"\n                }\n            }\n\t\t},\n        {\n            \"type\": \"section\",\n            \"block_id\": \"psetting_block\",\n\t\t\t\"text\": {\n\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\"text\": \"Setting Type\"\n\t\t\t},\n            \"accessory\": {\n              \"type\": \"static_select\",\n                \"action_id\": \"psetting_input\",\n\t\t\t\t\"placeholder\": {\n\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\"emoji\": true,\n\t\t\t\t\t\"text\": \"Setting - Choice\"\n\t\t\t\t},\n                \"options\": [\n                    {\n\t\t\t\t\t\t\"text\": {\n\t\t\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\t\t\"emoji\": true,\n\t\t\t\t\t\t\t\"text\": \"N/A\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"value\": \"0_0\"\n\t\t\t\t\t},\n\t\t\t\t\t{\n\t\t\t\t\t\t\"text\": {\n\t\t\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\t\t\"emoji\": true,\n\t\t\t\t\t\t\t\"text\": \"Single\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"value\": \"7_0\"\n\t\t\t\t\t},\n\t\t\t\t\t{\n\t\t\t\t\t\t\"text\": {\n\t\t\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\t\t\"emoji\": true,\n\t\t\t\t\t\t\t\"text\": \"Multiple - 1\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"value\": \"17_1\"\n\t\t\t\t\t},\n\t\t\t\t\t{\n\t\t\t\t\t\t\"text\": {\n\t\t\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\t\t\"emoji\": true,\n\t\t\t\t\t\t\t\"text\": \"Multiple - 2\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"value\": \"17_2\"\n\t\t\t\t\t},\n\t\t\t\t\t{\n\t\t\t\t\t\t\"text\": {\n\t\t\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\t\t\"emoji\": true,\n\t\t\t\t\t\t\t\"text\": \"Multiple - 3\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"value\": \"17_3\"\n\t\t\t\t\t},\n\t\t\t\t\t{\n\t\t\t\t\t\t\"text\": {\n\t\t\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\t\t\"emoji\": true,\n\t\t\t\t\t\t\t\"text\": \"Multiple - 4\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"value\": \"17_4\"\n\t\t\t\t\t},\n\t\t\t\t\t{\n\t\t\t\t\t\t\"text\": {\n\t\t\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\t\t\"emoji\": true,\n\t\t\t\t\t\t\t\"text\": \"Multiple - 5\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"value\": \"17_5\"\n\t\t\t\t\t},\n\t\t\t\t\t{\n\t\t\t\t\t\t\"text\": {\n\t\t\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\t\t\"emoji\": true,\n\t\t\t\t\t\t\t\"text\": \"Multiple - 6\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"value\": \"17_6\"\n\t\t\t\t\t}\n\t\t\t\t],\n                \"initial_option\": {\n                  \"text\": { \"type\": \"plain_text\", \"text\": \"{{ $json.stake_text }}\" },\n                  \"value\": \"{{ $json.stake_level }}\"\n                }\n            }\n        },\n        {\n\t\t\t\"type\": \"divider\"\n\t\t},\n        {\n          \"type\": \"input\",\n          \"block_id\": \"product_block\",\n          \"label\": {\n            \"type\": \"plain_text\",\n            \"text\": \"Product ID(*)\"\n          },\n          \"element\": {\n            \"type\": \"plain_text_input\",\n            \"action_id\": \"product_input\",\n            \"placeholder\": {\n              \"type\": \"plain_text\",\n              \"text\": \"123\"\n            },\n            \"initial_value\": \"{{ $json.action_decode.NewProductID }}\"\n          }\n        },\n        {\n          \"type\": \"input\",\n          \"block_id\": \"pname_block\",\n          \"label\": {\n            \"type\": \"plain_text\",\n            \"text\": \"Product Name(*)\"\n          },\n          \"element\": {\n            \"type\": \"plain_text_input\",\n            \"action_id\": \"pname_input\",\n            \"placeholder\": {\n              \"type\": \"plain_text\",\n              \"text\": \"ABC Game\"\n            },\n            \"initial_value\": \"{{ $json.action_decode.ProductName }}\"\n          }\n        },\n        {\n          \"type\": \"input\",\n          \"block_id\": \"sname_block\",\n          \"label\": {\n            \"type\": \"plain_text\",\n            \"text\": \"Sport Name(*)\"\n          },\n          \"element\": {\n            \"type\": \"plain_text_input\",\n            \"action_id\": \"sname_input\",\n            \"placeholder\": {\n              \"type\": \"plain_text\",\n              \"text\": \"Sport Name\"\n            },\n            \"initial_value\": \"{{ $json.action_decode.SportName }}\"\n          }\n        },\n        {\n          \"type\": \"input\",\n          \"block_id\": \"sport_block\",\n          \"label\": {\n            \"type\": \"plain_text\",\n            \"text\": \"Sport Type ID(*)\"\n          },\n          \"element\": {\n            \"type\": \"plain_text_input\",\n            \"action_id\": \"sport_input\",\n            \"placeholder\": {\n              \"type\": \"plain_text\",\n              \"text\": \"456\"\n            },\n            \"initial_value\": \"{{ $json.action_decode.NewSportID }}\"\n          }\n        },\n        {\n          \"type\": \"input\",\n          \"block_id\": \"bettype_block\",\n          \"label\": {\n            \"type\": \"plain_text\",\n            \"text\": \"Bet Type Range(*)\"\n          },\n          \"element\": {\n            \"type\": \"plain_text_input\",\n            \"action_id\": \"bettype_input\",\n            \"placeholder\": {\n              \"type\": \"plain_text\",\n              \"text\": \"2990-2999\"\n            },\n            \"initial_value\": \"2990-2999\"\n          }\n        },\n        {\n          \"type\": \"input\",\n          \"block_id\": \"btprize_block\",\n          \"label\": {\n            \"type\": \"plain_text\",\n            \"text\": \"Bet Type Prize\"\n          },\n          \"element\": {\n            \"type\": \"plain_text_input\",\n            \"action_id\": \"btprize_input\",\n            \"placeholder\": {\n              \"type\": \"plain_text\",\n              \"text\": \"2998\"\n            },\n            \"initial_value\": \"2998\"\n          }\n        },\n        {\n          \"type\": \"input\",\n          \"block_id\": \"btcontribution_block\",\n          \"label\": {\n            \"type\": \"plain_text\",\n            \"text\": \"Bet Type Contribution\"\n          },\n          \"element\": {\n            \"type\": \"plain_text_input\",\n            \"action_id\": \"btcontribution_ipput\",\n            \"placeholder\": {\n              \"type\": \"plain_text\",\n              \"text\": \"2999\"\n            },\n            \"initial_value\": \"2999\"\n          }\n        }\n\t]\n  }\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1648,
+        -832
+      ],
+      "id": "b73e3c11-389e-424d-a015-cdd4da4ae027",
+      "name": "Popup Form Update",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $json.payload.container.channel_id }}",
+          "mode": "id"
+        },
+        "ts": "={{ $json.payload.container.message_ts }}",
+        "messageType": "block",
+        "blocksUi": "={\n  \"blocks\": [\n\t\t{\n\t\t\t\"type\": \"section\",\n\t\t\t\"text\": {\n\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\"text\": \"*TL/AL -> Dev Agents - Implement integration process*\"\n\t\t\t}\n\t\t},\n\t\t{\n\t\t\t\"type\": \"divider\"\n\t\t},\n        {\n\t\t\t\"type\": \"section\",\n            \"text\": {\n              \"type\": \"mrkdwn\",\n              \"text\": \":one: - Dev_1 - Init Product-Sport-Bettype (Events) - Assigned\\n:two: - Dev_1 - Init SportBettypeMatrix-RefResource (Reports) - Assigned\\n:three: - Dev_2 - Init Product Status/Setting/etc... (Credit) - Assigned\\n:four: - Dev_3 - Init Setting DCS/Comm/etc... (Deposit) - Assigned\"\n          }\n\t\t},\n        {\n          \"type\": \"actions\",\n          \"elements\": [\n          {\n              \"type\": \"button\",\n              \"text\": { \"type\": \"plain_text\", \"text\": \"❌ Close\" },\n              \"style\": \"danger\",\n              \"value\": \"stop_{{ $json.product_encode }}\",\n              \"action_id\": \"stop_{{ $json.process_encode }}\"\n            }\n          ]\n        }\n    ]\n}",
+        "updateFields": {},
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        2064,
+        -320
+      ],
+      "id": "4fec264b-c99e-4753-b6e3-ead39facd1a6",
+      "name": "Update a message",
+      "webhookId": "947e41ea-3a84-480d-afee-a0bda2f13c47",
+      "credentials": {
+        "slackApi": {
+          "id": "eW4xpXO0KmlzF5Jq",
+          "name": "Slack Bobby Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://starix.slack.com/api/views.open",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer xoxb-8352731735536-9601395808884-zbZNx1zaQEH6vUmLW1GCtJgh"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"trigger_id\": \"{{ $json.trigger_id }}\",\n  \"view\": {\n    \"type\": \"modal\",\n    \"callback_id\": \"validate_modal\",\n    \"title\": {\n      \"type\": \"plain_text\",\n      \"text\": \"PO Agent - Validation\"\n    },\n    \"close\": {\n      \"type\": \"plain_text\",\n      \"text\": \"Close\"\n    },\n    \"blocks\": [\n\t\t{\n\t\t\t\"type\": \"section\",\n\t\t\t\"text\": {\n\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\"text\": \":warning: {{ $json.err_msg }}\",\n\t\t\t\t\"emoji\": true\n\t\t\t}\n\t\t}\n\t]\n  }\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2432,
+        -864
+      ],
+      "id": "b261313d-6356-40ef-9522-2ad41866e3b2",
+      "name": "Popup Validation"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Check the existence of the product and the sport name.",
+        "operation": "executeQuery",
+        "query": "declare @ProductName varchar(50),\n  @SportName varchar(50)\n\nSELECT @ProductName = '{{ $fromAI(\"ProductName\") }}',\n  @SportName = '{{ $fromAI(\"SportName\") }}'\n\nEXEC dbo.GameBot_ProductSport_Check @ProductName, @SportName"
+      },
+      "type": "n8n-nodes-base.microsoftSqlTool",
+      "typeVersion": 1.1,
+      "position": [
+        640,
+        128
+      ],
+      "id": "bff8c0d3-29ad-45b5-a9ac-9a93f8d9c1bf",
+      "name": "Product Check",
+      "credentials": {
+        "microsoftSql": {
+          "id": "5xOl6z6Q82Cw0sYR",
+          "name": "MSSQL177_bodb02"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Get product history",
+        "operation": "executeQuery",
+        "query": "EXEC dbo.GameBot_ProductSport_History"
+      },
+      "type": "n8n-nodes-base.microsoftSqlTool",
+      "typeVersion": 1.1,
+      "position": [
+        496,
+        144
+      ],
+      "id": "b000d9c0-50c6-4df5-aac0-5bfc2021f53b",
+      "name": "Product History",
+      "credentials": {
+        "microsoftSql": {
+          "id": "5xOl6z6Q82Cw0sYR",
+          "name": "MSSQL177_bodb02"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Classify Action').first().json.ENV }}",
+                    "rightValue": "LOCAL",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    },
+                    "id": "98055f26-03e6-46ae-945c-aa6ab2c6f601"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "LOCAL"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "dc7712cc-ae9a-4e24-981d-7e362e07875d",
+                    "leftValue": "={{ $('Classify Action').first().json.ENV }}",
+                    "rightValue": "SIT",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "SIT"
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        2304,
+        -160
+      ],
+      "id": "a4e1158d-45a2-4800-a0a6-2cd27c016df9",
+      "name": "Chose ENV"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://n8n.nexdev.net/webhook/game_bots_execute",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"channel\": \"{{ $json.channel }}\",\n  \"message_ts\": \"{{ $json.message_timestamp }}\",\n  \"username\": \"{{ $(\"Switch\").first().json.payload.user.name }}\",\n  \"product_encode\": \"{{ $json.message.blocks[3].elements[0].value }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2624,
+        -176
+      ],
+      "id": "cee4d3fa-fa63-426b-bcf4-e261d9871853",
+      "name": "Local Request"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Slack Trigger": {
+      "main": [
+        [
+          {
+            "node": "Prepare Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Reply": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Structure Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a config setup",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Gather Information",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook Confirm": {
+      "main": [
+        [
+          {
+            "node": "Classify Action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack Send Confirmation": {
+      "main": [
+        []
+      ]
+    },
+    "Send a popup modal": {
+      "main": [
+        []
+      ]
+    },
+    "Check Action Type": {
+      "main": [
+        [
+          {
+            "node": "Show Form",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Button Action": {
+      "main": [
+        [
+          {
+            "node": "Code Return",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Check Action Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structure Message": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify Action": {
+      "main": [
+        [
+          {
+            "node": "Is Button Action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a config setup": {
+      "main": [
+        []
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Data Validation",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Close a form",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Close a form",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Close a form",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Close a form",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Show Form": {
+      "main": [
+        []
+      ]
+    },
+    "Code Return": {
+      "main": [
+        []
+      ]
+    },
+    "Confirm & Process": {
+      "main": [
+        [
+          {
+            "node": "Parser action form",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data Validation": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Invalid data",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Popup Validation",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Confirm & Process",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Close a form": {
+      "main": [
+        []
+      ]
+    },
+    "Parser action form": {
+      "main": [
+        [
+          {
+            "node": "Close a form",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a progress form": {
+      "main": [
+        [
+          {
+            "node": "Parser action form",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a message": {
+      "main": [
+        [
+          {
+            "node": "Chose ENV",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Product Check": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Product History": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chose ENV": {
+      "main": [
+        [
+          {
+            "node": "Local Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "a7389fb0-f984-4a1e-a15d-b1415951ef32",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "98bfed1c0f22fa9e07d0e38dc58da94b0281d63095bd4ba14894d42a90a063e3"
+  },
+  "id": "F1rXzfSRamZO0xTn",
+  "tags": []
+}

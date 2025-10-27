@@ -1,0 +1,1683 @@
+{
+  "name": "Game Bot - Devs Execution",
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "let body = $json.body; \nlet channel = body.channel;\nlet message_ts = body.message_ts;\nlet product_encode = body.product_encode;\nlet product_decode = JSON.parse(Buffer.from(product_encode.split(\"_\")[1], \"base64\").toString(\"utf8\"));\n\nreturn [\n  {\n    json: {\n      task: \"Export event tables to excel\",\n      channel,\n      message_ts,\n      product_decode\n    }\n  }\n]"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1104,
+        816
+      ],
+      "id": "07c12873-b4c3-4e8f-a937-b860eda1daa7",
+      "name": "Task Assignments"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $('Task Assignments').item.json.channel }}",
+          "mode": "id"
+        },
+        "messageType": "block",
+        "blocksUi": "={\n\t\"blocks\": [\n\t\t{\n\t\t\t\"type\": \"section\",\n\t\t\t\"text\": {\n\t\t\t\t\"text\": \":one::two: Init Products-Sports-Bettype (Events).\",\n\t\t\t\t\"type\": \"mrkdwn\"\n\t\t\t},\n\t\t\t\"fields\": [\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\t\"text\": \"*BotIC*\\nDev_1\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\t\"text\": \"*Status*\\n[Dev:Doing]\"\n\t\t\t\t}\n\t\t\t]\n\t\t}\n\t]\n}",
+        "text": "Dev_1 - [Dev:Doing]",
+        "otherOptions": {
+          "includeLinkToWorkflow": false,
+          "thread_ts": {
+            "replyValues": {
+              "thread_ts": "={{ $('Task Assignments').item.json.message_ts }}",
+              "reply_broadcast": true
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1584,
+        384
+      ],
+      "id": "1f89c70b-7152-42aa-b2f7-a68744269cf9",
+      "name": "Dev_1 Report",
+      "webhookId": "82f5eb46-78ca-4916-af2c-d53616fd2dc1",
+      "credentials": {
+        "slackApi": {
+          "id": "eW4xpXO0KmlzF5Jq",
+          "name": "Slack Bobby Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $('Task Assignments').item.json.channel }}",
+          "mode": "id"
+        },
+        "messageType": "block",
+        "blocksUi": "={\n\t\"blocks\": [\n\t\t{\n\t\t\t\"type\": \"section\",\n\t\t\t\"text\": {\n\t\t\t\t\"text\": \":three: Init Product Status/Setting/etc... (Credit).\",\n\t\t\t\t\"type\": \"mrkdwn\"\n\t\t\t},\n\t\t\t\"fields\": [\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\t\"text\": \"*BotIC*\\nDev_2\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\t\"text\": \"*Status*\\n[Dev:Doing]\"\n\t\t\t\t}\n\t\t\t]\n\t\t}\n\t]\n}",
+        "text": "=",
+        "otherOptions": {
+          "includeLinkToWorkflow": false,
+          "thread_ts": {
+            "replyValues": {
+              "thread_ts": "={{ $('Task Assignments').item.json.message_ts }}",
+              "reply_broadcast": true
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1584,
+        720
+      ],
+      "id": "e127dff3-9dda-433e-99cb-965db1f33702",
+      "name": "Dev_2 Report",
+      "webhookId": "79f6b2b6-1edd-4a8f-bc7c-1cab7692b273",
+      "credentials": {
+        "slackApi": {
+          "id": "eW4xpXO0KmlzF5Jq",
+          "name": "Slack Bobby Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $('Task Assignments').item.json.channel }}",
+          "mode": "id"
+        },
+        "messageType": "block",
+        "blocksUi": "={\n\t\"blocks\": [\n\t\t{\n\t\t\t\"type\": \"section\",\n\t\t\t\"text\": {\n\t\t\t\t\"text\": \":four: Init Setting DCS/Comm/etc... (Deposit).\",\n\t\t\t\t\"type\": \"mrkdwn\"\n\t\t\t},\n\t\t\t\"fields\": [\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\t\"text\": \"*BotIC*\\nDev_3\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\t\"text\": \"*Status*\\n[Dev:Doing]\"\n\t\t\t\t}\n\t\t\t]\n\t\t}\n\t]\n}",
+        "text": "=",
+        "otherOptions": {
+          "includeLinkToWorkflow": false,
+          "thread_ts": {
+            "replyValues": {
+              "thread_ts": "={{ $('Task Assignments').item.json.message_ts }}",
+              "reply_broadcast": true
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1584,
+        1056
+      ],
+      "id": "7a6b9ec8-7f3f-4acb-b3e1-951d2c16657a",
+      "name": "Dev_3 Report",
+      "webhookId": "5fd4b713-e34f-4900-b50a-758c6124e850",
+      "credentials": {
+        "slackApi": {
+          "id": "eW4xpXO0KmlzF5Jq",
+          "name": "Slack Bobby Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "declare @product_decode varchar(max)='{{ JSON.stringify($json.product_decode) }}';\nexec dbo.GameBot_ReferenceSetting_Init @product_decode"
+      },
+      "type": "n8n-nodes-base.microsoftSql",
+      "typeVersion": 1.1,
+      "position": [
+        1376,
+        816
+      ],
+      "id": "ef231e87-e767-4167-9f62-ae564701b5f6",
+      "name": "Dev_2 Credit",
+      "credentials": {
+        "microsoftSql": {
+          "id": "v5wp6lKxq2ZvjtUu",
+          "name": "MSSQL177_GlobCustDB"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "declare @product_decode varchar(max)='{{ JSON.stringify($json.product_decode) }}';\nexec dbo.GameBot_Product3rdSport_Init @product_decode"
+      },
+      "type": "n8n-nodes-base.microsoftSql",
+      "typeVersion": 1.1,
+      "position": [
+        1376,
+        1200
+      ],
+      "id": "529ada04-dd9b-43f0-a540-3f6d94db6b85",
+      "name": "Dev_3 Deposit",
+      "credentials": {
+        "microsoftSql": {
+          "id": "fJyd0dxNO2QIT7uN",
+          "name": "local_testdb053"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "declare @product_decode varchar(max)='{{ JSON.stringify($json.product_decode) }}';\nexec dbo.GameBot_ProductSport_Init @product_decode,@action_mode=2"
+      },
+      "type": "n8n-nodes-base.microsoftSql",
+      "typeVersion": 1.1,
+      "position": [
+        1392,
+        480
+      ],
+      "id": "343446f5-7e67-4e80-9494-cc87413360b9",
+      "name": "Dev_1 Events",
+      "credentials": {
+        "microsoftSql": {
+          "id": "5xOl6z6Q82Cw0sYR",
+          "name": "MSSQL177_bodb02"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {
+          "includeBinaries": true
+        }
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        2784,
+        912
+      ],
+      "id": "0d379014-47d9-4340-aa2a-373ee073c55c",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "operation": "compress",
+        "binaryPropertyName": "={{$('Events Parser').first().json.fields}},SportBettypeSettingMatrix,Product3rd",
+        "fileName": "=events_data_{{ String(Date.now()) }}.zip",
+        "binaryPropertyOutput": "Events_Data"
+      },
+      "type": "n8n-nodes-base.compression",
+      "typeVersion": 1.1,
+      "position": [
+        2960,
+        912
+      ],
+      "id": "4516003c-ec7d-4ee1-9c81-fe4227b13528",
+      "name": "Compression"
+    },
+    {
+      "parameters": {
+        "jsCode": "return $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1584,
+        912
+      ],
+      "id": "8e42c42d-e871-47aa-8cf8-a37c7a83854c",
+      "name": "Dev_2 Results"
+    },
+    {
+      "parameters": {
+        "jsCode": "let data = JSON.parse($json.SBSM);\nreturn data;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1776,
+        912
+      ],
+      "id": "8db659a5-40ad-4e1b-8083-4918ed9c029e",
+      "name": "SBSM Output"
+    },
+    {
+      "parameters": {
+        "operation": "xls",
+        "binaryPropertyName": "SportBettypeSettingMatrix",
+        "options": {
+          "fileName": "SportBettypeSettingMatrix.xls",
+          "headerRow": true,
+          "sheetName": "SportBettypeSettingMatrix"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        2000,
+        912
+      ],
+      "id": "eb69460c-860f-4c0a-9ddd-effd8cdf47af",
+      "name": "SBSM to XLS"
+    },
+    {
+      "parameters": {
+        "jsCode": "return $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1584,
+        1200
+      ],
+      "id": "b5ace831-fa22-436c-bc48-79ce9e94c094",
+      "name": "Dev_3 Results"
+    },
+    {
+      "parameters": {
+        "jsCode": "let data = JSON.parse($json.product3rd);\nreturn data;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1760,
+        1200
+      ],
+      "id": "a34907a8-9c13-4204-af79-4f74ffb79710",
+      "name": "Product3rd Output"
+    },
+    {
+      "parameters": {
+        "operation": "xls",
+        "binaryPropertyName": "Product3rd",
+        "options": {
+          "fileName": "Product3rd.xls",
+          "headerRow": true,
+          "sheetName": "Product3rd"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1984,
+        1200
+      ],
+      "id": "2609cd2f-d5df-402b-8746-2033be9b0e50",
+      "name": "Product3rd to XLS"
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2544,
+        896
+      ],
+      "id": "7eb616a0-53d1-438f-a3e2-a10c1d60ecc9",
+      "name": "Merge Events"
+    },
+    {
+      "parameters": {
+        "numberInputs": 4
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2304,
+        2048
+      ],
+      "id": "cae33163-cc75-4129-b251-3c08b1416789",
+      "name": "Settings"
+    },
+    {
+      "parameters": {
+        "jsCode": "//dep_product_setting\nlet data = JSON.parse($json.dep_product_setting);\nreturn data;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1808,
+        2320
+      ],
+      "id": "b696ce4f-9bf9-465a-acc1-f29695040fc7",
+      "name": "Dep_ProductSetting"
+    },
+    {
+      "parameters": {
+        "jsCode": "//dep_product_status_profile\nlet data = JSON.parse($json.dep_product_status_profile);\nreturn data;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1808,
+        2176
+      ],
+      "id": "400e7708-13b0-49fb-acdb-7709ed091e40",
+      "name": "Dep_ProductStatusProfile"
+    },
+    {
+      "parameters": {
+        "jsCode": "let data = JSON.parse($json.product_status_profile);\nreturn data;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1808,
+        1840
+      ],
+      "id": "d6b3fdc2-75d5-4de6-8e26-c4f531d20011",
+      "name": "ProductStatusProfile"
+    },
+    {
+      "parameters": {
+        "jsCode": "let data = JSON.parse($json.product_setting_detail);\nreturn data;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1808,
+        2016
+      ],
+      "id": "7e98537c-bff2-4d3f-b45e-c0da749d3760",
+      "name": "ProductSettingDetail Output"
+    },
+    {
+      "parameters": {
+        "jsCode": "let body = $json.body; \nlet channel = body.channel;\nlet message_ts = body.message_ts;\nlet product_encode = body.product_encode;\nlet product_decode = JSON.parse(Buffer.from(product_encode.split(\"_\")[1], \"base64\").toString(\"utf8\"));\n\nreturn [\n  {\n    json: {\n      task: \"Initialize product setting\",\n      channel,\n      message_ts,\n      product_decode\n    }\n  }\n]"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        2000
+      ],
+      "id": "155d5c85-c4d3-462c-a294-f25b9998cbd2",
+      "name": "Product Setting"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "declare @product_decode varchar(max)='{{ JSON.stringify($json.product_decode) }}';\nexec dbo.GameBot_ProductSetting_Credit @product_decode"
+      },
+      "type": "n8n-nodes-base.microsoftSql",
+      "typeVersion": 1.1,
+      "position": [
+        1360,
+        1952
+      ],
+      "id": "da29e6dc-324b-4143-b181-8f51d5491a1e",
+      "name": "Dev_2 Setting",
+      "credentials": {
+        "microsoftSql": {
+          "id": "fJyd0dxNO2QIT7uN",
+          "name": "local_testdb053"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1568,
+        1952
+      ],
+      "id": "3a3a9909-71ac-422e-9d26-62700f805b1c",
+      "name": "Credit Setting"
+    },
+    {
+      "parameters": {
+        "jsCode": "return $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1552,
+        2224
+      ],
+      "id": "6fecfd95-86cb-44f5-8f10-e8b5e1909545",
+      "name": "Deposit Setting"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "declare @product_decode varchar(max)='{{ JSON.stringify($json.product_decode) }}';\nexec dbo.GameBot_ProductSetting_Deposit @product_decode"
+      },
+      "type": "n8n-nodes-base.microsoftSql",
+      "typeVersion": 1.1,
+      "position": [
+        1360,
+        2224
+      ],
+      "id": "9c5e335a-cf45-4210-a76f-0fc905e15932",
+      "name": "Dev_3 Setting",
+      "credentials": {
+        "microsoftSql": {
+          "id": "fJyd0dxNO2QIT7uN",
+          "name": "local_testdb053"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "game_bots_execute",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        528,
+        1552
+      ],
+      "id": "2365ba30-50be-4cb5-ac81-517bced84623",
+      "name": "Webhook - Setup 3rd Game1",
+      "webhookId": "c8439b46-fa0c-4964-a666-f2026e6dd151"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "binaryPropertyName": "Events_Data",
+        "options": {
+          "channelId": "={{ $('Task Assignments').first().json.channel }}",
+          "threadTs": "={{ $('Task Assignments').first().json.message_ts }}",
+          "title": "Event data has been done"
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        3232,
+        912
+      ],
+      "id": "2250ed07-35ec-4bc2-ab6e-8c339bc93552",
+      "name": "Upload Events File",
+      "webhookId": "aa2a424f-f8b4-46f3-89a1-524e7ecb68a1",
+      "credentials": {
+        "slackApi": {
+          "id": "eW4xpXO0KmlzF5Jq",
+          "name": "Slack Bobby Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "binaryPropertyName": "Setting_Data",
+        "options": {
+          "channelId": "={{ $('Product Setting').first().json.channel }}",
+          "threadTs": "={{ $('Product Setting').first().json.message_ts }}",
+          "title": "Setting data has been done"
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        2880,
+        2080
+      ],
+      "id": "07019041-24c9-466c-ad0d-77a38957160c",
+      "name": "Upload Setting File",
+      "webhookId": "aa2a424f-f8b4-46f3-89a1-524e7ecb68a1",
+      "credentials": {
+        "slackApi": {
+          "id": "eW4xpXO0KmlzF5Jq",
+          "name": "Slack Bobby Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "xls",
+        "binaryPropertyName": "ProductStatusProfile",
+        "options": {
+          "fileName": "ProductStatusProfile.xls",
+          "headerRow": true,
+          "sheetName": "ProductStatusProfile"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        2000,
+        1840
+      ],
+      "id": "5086ed17-6050-4444-9c97-ecd3566f7ccb",
+      "name": "ProductStatusProfile to XLS"
+    },
+    {
+      "parameters": {
+        "operation": "xls",
+        "binaryPropertyName": "ProductSettingDetail",
+        "options": {
+          "fileName": "ProductSettingDetail.xls",
+          "headerRow": true,
+          "sheetName": "ProductSettingDetail"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        2000,
+        2016
+      ],
+      "id": "787f721a-2c12-4ed1-8dcc-20fbf0d76a78",
+      "name": "ProductSettingDetail to XLS"
+    },
+    {
+      "parameters": {
+        "operation": "xls",
+        "binaryPropertyName": "Dep_ProductStatusProfile",
+        "options": {
+          "fileName": "Dep_ProductStatusProfile.xls",
+          "headerRow": true,
+          "sheetName": "Dep_ProductStatusProfile"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        2000,
+        2176
+      ],
+      "id": "f6e6fe61-29cc-4045-8dec-fbae4fd56727",
+      "name": "Dep_ProductStatusProfile to XLS"
+    },
+    {
+      "parameters": {
+        "operation": "xls",
+        "binaryPropertyName": "Dep_ProductSetting",
+        "options": {
+          "fileName": "Dep_ProductSetting.xls",
+          "headerRow": true,
+          "sheetName": "Dep_ProductSetting"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        2000,
+        2320
+      ],
+      "id": "50eb4251-a8dd-4b41-9cc0-71224906f82d",
+      "name": "Dep_ProductSetting to XLS"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $('Product Setting').item.json.channel }}",
+          "mode": "id"
+        },
+        "messageType": "block",
+        "blocksUi": "={\n\t\"blocks\": [\n\t\t{\n\t\t\t\"type\": \"section\",\n\t\t\t\"text\": {\n\t\t\t\t\"text\": \":one::two: Init Products-Sports-Bettype (Events).\",\n\t\t\t\t\"type\": \"mrkdwn\"\n\t\t\t},\n\t\t\t\"fields\": [\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\t\"text\": \"*BotIC*\\nDev_1\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\t\"text\": \"*Status*\\n[Dev:Done]\"\n\t\t\t\t}\n\t\t\t]\n\t\t}\n\t]\n}",
+        "text": "\nDev_1 - Init Products-Sports-Bettype (Events)  - [Dev:Done]",
+        "otherOptions": {
+          "includeLinkToWorkflow": false,
+          "thread_ts": {
+            "replyValues": {
+              "thread_ts": "={{ $('Product Setting').item.json.message_ts }}",
+              "reply_broadcast": true
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        3312,
+        1888
+      ],
+      "id": "5aee13e3-092b-4843-a1ae-1925a376d80a",
+      "name": "Dev_1 - Done",
+      "webhookId": "82f5eb46-78ca-4916-af2c-d53616fd2dc1",
+      "credentials": {
+        "slackApi": {
+          "id": "eW4xpXO0KmlzF5Jq",
+          "name": "Slack Bobby Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $('Product Setting').item.json.channel }}",
+          "mode": "id"
+        },
+        "messageType": "block",
+        "blocksUi": "={\n\t\"blocks\": [\n\t\t{\n\t\t\t\"type\": \"section\",\n\t\t\t\"text\": {\n\t\t\t\t\"text\": \":three: Init Product Status/Setting/etc... (Credit).\",\n\t\t\t\t\"type\": \"mrkdwn\"\n\t\t\t},\n\t\t\t\"fields\": [\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\t\"text\": \"*BotIC*\\nDev_2\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\t\"text\": \"*Status*\\n[Dev:Done]\"\n\t\t\t\t}\n\t\t\t]\n\t\t}\n\t]\n}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false,
+          "thread_ts": {
+            "replyValues": {
+              "thread_ts": "={{ $('Product Setting').item.json.message_ts }}",
+              "reply_broadcast": true
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        3312,
+        2080
+      ],
+      "id": "813ec804-81ad-47cc-96da-15ff345e6eef",
+      "name": "Dev_2 - Done",
+      "webhookId": "79f6b2b6-1edd-4a8f-bc7c-1cab7692b273",
+      "credentials": {
+        "slackApi": {
+          "id": "eW4xpXO0KmlzF5Jq",
+          "name": "Slack Bobby Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $('Product Setting').first().json.channel }}",
+          "mode": "id"
+        },
+        "messageType": "block",
+        "blocksUi": "={\n\t\"blocks\": [\n\t\t{\n\t\t\t\"type\": \"section\",\n\t\t\t\"text\": {\n\t\t\t\t\"text\": \":four: Init Setting DCS/Comm/etc... (Deposit).\",\n\t\t\t\t\"type\": \"mrkdwn\"\n\t\t\t},\n\t\t\t\"fields\": [\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\t\"text\": \"*BotIC*\\nDev_3\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\t\"text\": \"*Status*\\n[Dev:Done]\"\n\t\t\t\t}\n\t\t\t]\n\t\t}\n\t]\n}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false,
+          "thread_ts": {
+            "replyValues": {
+              "thread_ts": "={{ $('Product Setting').first().json.message_ts }}",
+              "reply_broadcast": true
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        3312,
+        2272
+      ],
+      "id": "b37a1286-5975-4c75-b8cf-c3b680ae8820",
+      "name": "Dev_3 Done",
+      "webhookId": "5fd4b713-e34f-4900-b50a-758c6124e850",
+      "credentials": {
+        "slackApi": {
+          "id": "eW4xpXO0KmlzF5Jq",
+          "name": "Slack Bobby Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "WAITFOR DELAY '00:00:5';"
+      },
+      "type": "n8n-nodes-base.microsoftSql",
+      "typeVersion": 1.1,
+      "position": [
+        3088,
+        2080
+      ],
+      "id": "f0fa1c22-c4e9-45b6-9c1a-46e8cc38776f",
+      "name": "Microsoft SQL",
+      "credentials": {
+        "microsoftSql": {
+          "id": "fJyd0dxNO2QIT7uN",
+          "name": "local_testdb053"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "let body = $json.body; \nlet channel = body.channel;\nlet message_ts = body.message_ts;\nlet product_encode = body.product_encode;\nlet product_decode = JSON.parse(Buffer.from(product_encode.split(\"_\")[1], \"base64\").toString(\"utf8\"));\n\nreturn [\n  {\n    json: {\n      task: \"Initilize product/customer scripts setting.\",\n      channel,\n      message_ts,\n      product_decode\n    }\n  }\n]"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1104,
+        1552
+      ],
+      "id": "fb2e354c-cab4-4882-b814-19e85cf68f16",
+      "name": "Init Setting Scripts"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "declare @product_decode varchar(max)='{{ JSON.stringify($json.product_decode) }}';\nexec dbo.GameBot_SettingScript_Init @product_decode"
+      },
+      "type": "n8n-nodes-base.microsoftSql",
+      "typeVersion": 1.1,
+      "position": [
+        1360,
+        1552
+      ],
+      "id": "95e62cf2-ff42-4a12-9c39-3a8ec6b3d468",
+      "name": "Dev_1 Init Scripts",
+      "credentials": {
+        "microsoftSql": {
+          "id": "fJyd0dxNO2QIT7uN",
+          "name": "local_testdb053"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nvar scripts = [];\nvar data_fields = [];\nfor (const item of $input.all()) {\n  let content = JSON.parse(item.json.ScriptContent);\n  data_fields.push(\"data_\" + item.json.ScriptNo.toString());\n  let script = {\n    json: {\n      ScriptNo: item.json.ScriptNo,\n      ScriptName: content.ScriptName,\n      ScriptContent:  content.ScriptContent\n    }\n  };\n  scripts.push(script);\n}\n\nreturn [{\n  json: {\n    fields: data_fields.join(\",\"),\n    scripts\n  }\n}\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1568,
+        1552
+      ],
+      "id": "1229981a-0af0-419e-bfbc-ba5058b2468b",
+      "name": "Dev_1 Setting Scripts"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        2096,
+        1552
+      ],
+      "id": "cad38376-c923-4b8b-a0a3-b3296c89b167",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "name": "Replace Me",
+      "typeVersion": 1,
+      "position": [
+        2592,
+        1568
+      ],
+      "id": "a6d8b9e1-3ca7-4418-bdbd-68304bd286f5"
+    },
+    {
+      "parameters": {
+        "operation": "toText",
+        "sourceProperty": "ScriptContent",
+        "binaryPropertyName": "=data_{{ $json.ScriptNo }}",
+        "options": {
+          "fileName": "={{ $json.ScriptName }}"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        2352,
+        1568
+      ],
+      "id": "af78a870-986e-42a1-8881-a3a95bbb642b",
+      "name": "Convert to SQL"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nvar scripts = $json.scripts;\nreturn scripts;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1808,
+        1552
+      ],
+      "id": "12f18a84-bdcf-489a-bf26-d566e0799ffc",
+      "name": "SQL Scripts"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "data"
+            }
+          ]
+        },
+        "options": {
+          "mergeLists": true,
+          "includeBinaries": true
+        }
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        2336,
+        1424
+      ],
+      "id": "6265e0d8-128d-49b9-9055-0e2e218973f3",
+      "name": "Aggregate Scripts"
+    },
+    {
+      "parameters": {
+        "operation": "compress",
+        "binaryPropertyName": "={{$(\"Dev_1 Setting Scripts\").first().json.fields}}",
+        "fileName": "=InitScriptSetting_{{ String(Date.now()) }}.zip",
+        "binaryPropertyOutput": "Scripts_Data"
+      },
+      "type": "n8n-nodes-base.compression",
+      "typeVersion": 1.1,
+      "position": [
+        2592,
+        1424
+      ],
+      "id": "4e12498e-c89b-43c2-a9d8-b32b1f507a34",
+      "name": "Compress Scripts"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {
+          "includeBinaries": true
+        }
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        2512,
+        2080
+      ],
+      "id": "00eb0a8e-de3e-4fe3-8f92-dd93a40e670e",
+      "name": "Aggregate Setting"
+    },
+    {
+      "parameters": {
+        "operation": "compress",
+        "binaryPropertyName": "ProductStatusProfile,ProductSettingDetail,Dep_ProductStatusProfile,Dep_ProductSetting",
+        "fileName": "=ProductSetting_{{ String(Date.now()) }}.zip",
+        "binaryPropertyOutput": "Setting_Data"
+      },
+      "type": "n8n-nodes-base.compression",
+      "typeVersion": 1.1,
+      "position": [
+        2704,
+        2080
+      ],
+      "id": "cbcdd238-53f6-434f-bcf7-695b4475f361",
+      "name": "Compress Setting"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "binaryPropertyName": "Scripts_Data",
+        "options": {
+          "channelId": "={{ $('Init Setting Scripts').first().json.channel }}",
+          "threadTs": "={{ $('Init Setting Scripts').first().json.message_ts }}",
+          "title": "Init  scripts has been done"
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        2832,
+        1424
+      ],
+      "id": "9266ef6c-854a-49e5-b9eb-edf27f44c776",
+      "name": "Upload Scripts",
+      "webhookId": "aa2a424f-f8b4-46f3-89a1-524e7ecb68a1",
+      "credentials": {
+        "slackApi": {
+          "id": "eW4xpXO0KmlzF5Jq",
+          "name": "Slack Bobby Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "var botResult = JSON.parse($json.BotResult);\nvar events = botResult.events;\nvar excels = [];\nvar data_fields = [];\nfor(const item of events) {\n  data_fields.push(item.table_name);\n  excels.push(item);\n}\n\nreturn [{\n    json: {\n      fields: data_fields.join(\",\"),\n      excels\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1584,
+        576
+      ],
+      "id": "0b17a621-a7ad-4791-8d2f-36669d1cbe56",
+      "name": "Events Parser"
+    },
+    {
+      "parameters": {
+        "jsCode": "return $json.excels || [];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1808,
+        576
+      ],
+      "id": "40f0f7b9-e62b-4aae-afaf-70e2f171dcc1",
+      "name": "Events Data"
+    },
+    {
+      "parameters": {
+        "operation": "xls",
+        "binaryPropertyName": "={{ $('Loop Event').item.json.table_name }}",
+        "options": {
+          "fileName": "={{ $('Loop Event').item.json.table_name }}.xls",
+          "headerRow": true,
+          "sheetName": "={{ $('Loop Event').item.json.table_name }}"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        2704,
+        592
+      ],
+      "id": "e623d5ee-7764-4934-b8b4-23a0d146e81d",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "jsCode": "return JSON.parse($input.first().json.table_data);"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2400,
+        592
+      ],
+      "id": "c0173897-27f3-403d-9947-b9d77f39166c",
+      "name": "Event to Excel"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        2096,
+        576
+      ],
+      "id": "05436da6-46e5-4495-a54e-80d46fac0dc6",
+      "name": "Loop Event"
+    },
+    {
+      "parameters": {
+        "content": "Global Setting",
+        "height": 1008,
+        "width": 2272,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1280,
+        336
+      ],
+      "typeVersion": 1,
+      "id": "ae03a004-68e9-4b13-87aa-7cd71bdbfa9e",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "Setting Scripts",
+        "height": 384,
+        "width": 2272,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1280,
+        1376
+      ],
+      "typeVersion": 1,
+      "id": "94b4122d-4465-4859-8191-895556687459",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "Product Setting",
+        "height": 736,
+        "width": 2272,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1280,
+        1792
+      ],
+      "typeVersion": 1,
+      "id": "001886f9-0c02-4a7d-a0ec-dbca207c9b97",
+      "name": "Sticky Note2"
+    }
+  ],
+  "pinData": {
+    "Webhook - Setup 3rd Game1": [
+      {
+        "json": {
+          "headers": {
+            "accept": "application/json,text/html,application/xhtml+xml,application/xml,text/*;q=0.9, image/*;q=0.8, */*;q=0.7",
+            "content-type": "application/json",
+            "user-agent": "axios/1.12.0",
+            "content-length": "443",
+            "accept-encoding": "gzip, compress, deflate, br",
+            "host": "n8n.nexdev.net",
+            "x-forwarded-proto": "https",
+            "x-forwarded-for": "10.42.10.27"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "channel": "D09JELLPLUQ",
+            "message_ts": "1760604671.255239",
+            "product_encode": "stop_eyJtb2RlbCI6IkJvdGgiLCJldm4iOiJMT0NBTCIsInByb2R1Y3RfdHlwZSI6IlJORyIsInByb2R1Y3Rfc2V0dGluZyI6IjBfMCIsInByb2R1Y3RfaWQiOiIxMTciLCJwcm9kdWN0X25hbWUiOiJHYW1lIFBsYXkiLCJwcm9kdWN0X2NvZGUiOiJHQU0iLCJzcG9ydF9pZCI6IjExMyIsInNwb3J0X25hbWUiOiJHYW1lIFBsYXkiLCJiZXR0eXBlX2Zyb20iOiIxNzEwMCIsImJldHR5cGVfdG8iOiIxNzE5OSIsImJldHR5cGVfcHJpemUiOiIxNzE5OCIsImJldHR5cGVfY29udHJpYnV0aW9uIjoiMTcxOTkifQ=="
+          },
+          "webhookUrl": "https://n8n.nexdev.net/webhook/c8439b46-fa0c-4964-a666-f2026e6dd151",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Task Assignments": {
+      "main": [
+        [
+          {
+            "node": "Dev_1 Events",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Dev_2 Credit",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Dev_3 Deposit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dev_2 Credit": {
+      "main": [
+        [
+          {
+            "node": "Dev_2 Results",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Dev_2 Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dev_3 Deposit": {
+      "main": [
+        [
+          {
+            "node": "Dev_3 Report",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Dev_3 Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dev_1 Events": {
+      "main": [
+        [
+          {
+            "node": "Dev_1 Report",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Events Parser",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Compression",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compression": {
+      "main": [
+        [
+          {
+            "node": "Upload Events File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dev_2 Results": {
+      "main": [
+        [
+          {
+            "node": "SBSM Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SBSM Output": {
+      "main": [
+        [
+          {
+            "node": "SBSM to XLS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SBSM to XLS": {
+      "main": [
+        [
+          {
+            "node": "Merge Events",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Dev_3 Results": {
+      "main": [
+        [
+          {
+            "node": "Product3rd Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Product3rd Output": {
+      "main": [
+        [
+          {
+            "node": "Product3rd to XLS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Product3rd to XLS": {
+      "main": [
+        [
+          {
+            "node": "Merge Events",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Merge Events": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dep_ProductSetting": {
+      "main": [
+        [
+          {
+            "node": "Dep_ProductSetting to XLS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dep_ProductStatusProfile": {
+      "main": [
+        [
+          {
+            "node": "Dep_ProductStatusProfile to XLS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ProductStatusProfile": {
+      "main": [
+        [
+          {
+            "node": "ProductStatusProfile to XLS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ProductSettingDetail Output": {
+      "main": [
+        [
+          {
+            "node": "ProductSettingDetail to XLS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Product Setting": {
+      "main": [
+        [
+          {
+            "node": "Dev_2 Setting",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Dev_3 Setting",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dev_2 Setting": {
+      "main": [
+        [
+          {
+            "node": "Credit Setting",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Credit Setting": {
+      "main": [
+        [
+          {
+            "node": "ProductStatusProfile",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "ProductSettingDetail Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deposit Setting": {
+      "main": [
+        [
+          {
+            "node": "Dep_ProductStatusProfile",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Dep_ProductSetting",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dev_3 Setting": {
+      "main": [
+        [
+          {
+            "node": "Deposit Setting",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Settings": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Setting",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook - Setup 3rd Game1": {
+      "main": [
+        [
+          {
+            "node": "Task Assignments",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Init Setting Scripts",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Product Setting",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ProductStatusProfile to XLS": {
+      "main": [
+        [
+          {
+            "node": "Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ProductSettingDetail to XLS": {
+      "main": [
+        [
+          {
+            "node": "Settings",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Dep_ProductStatusProfile to XLS": {
+      "main": [
+        [
+          {
+            "node": "Settings",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Dep_ProductSetting to XLS": {
+      "main": [
+        [
+          {
+            "node": "Settings",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Upload Events File": {
+      "main": [
+        []
+      ]
+    },
+    "Upload Setting File": {
+      "main": [
+        [
+          {
+            "node": "Microsoft SQL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Microsoft SQL": {
+      "main": [
+        [
+          {
+            "node": "Dev_1 - Done",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Dev_2 - Done",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Dev_3 Done",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Init Setting Scripts": {
+      "main": [
+        [
+          {
+            "node": "Dev_1 Init Scripts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dev_1 Init Scripts": {
+      "main": [
+        [
+          {
+            "node": "Dev_1 Setting Scripts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dev_1 Setting Scripts": {
+      "main": [
+        [
+          {
+            "node": "SQL Scripts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Scripts",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Convert to SQL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Replace Me": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to SQL": {
+      "main": [
+        [
+          {
+            "node": "Replace Me",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SQL Scripts": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Scripts": {
+      "main": [
+        [
+          {
+            "node": "Compress Scripts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Setting": {
+      "main": [
+        [
+          {
+            "node": "Compress Setting",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compress Setting": {
+      "main": [
+        [
+          {
+            "node": "Upload Setting File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compress Scripts": {
+      "main": [
+        [
+          {
+            "node": "Upload Scripts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Events Parser": {
+      "main": [
+        [
+          {
+            "node": "Events Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Events Data": {
+      "main": [
+        [
+          {
+            "node": "Loop Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "Loop Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Event to Excel": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Event": {
+      "main": [
+        [
+          {
+            "node": "Merge Events",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Event to Excel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "0fe720bf-ae32-45ec-b504-e724378730b3",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "98bfed1c0f22fa9e07d0e38dc58da94b0281d63095bd4ba14894d42a90a063e3"
+  },
+  "id": "8QOXefpTdHraOdr4",
+  "tags": []
+}
